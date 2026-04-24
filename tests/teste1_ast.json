@@ -1,0 +1,200 @@
+{
+  "tipo": "ProgramNode",
+  "statements": [
+    {
+      "tipo": "BinOpNode",
+      "op": "+",
+      "left": {
+        "tipo": "NumberNode",
+        "value": 10,
+        "is_real": false
+      },
+      "right": {
+        "tipo": "NumberNode",
+        "value": 5,
+        "is_real": false
+      }
+    },
+    {
+      "tipo": "BinOpNode",
+      "op": "-",
+      "left": {
+        "tipo": "NumberNode",
+        "value": 20,
+        "is_real": false
+      },
+      "right": {
+        "tipo": "NumberNode",
+        "value": 8,
+        "is_real": false
+      }
+    },
+    {
+      "tipo": "BinOpNode",
+      "op": "*",
+      "left": {
+        "tipo": "NumberNode",
+        "value": 6,
+        "is_real": false
+      },
+      "right": {
+        "tipo": "NumberNode",
+        "value": 7,
+        "is_real": false
+      }
+    },
+    {
+      "tipo": "BinOpNode",
+      "op": "/",
+      "left": {
+        "tipo": "NumberNode",
+        "value": 20,
+        "is_real": false
+      },
+      "right": {
+        "tipo": "NumberNode",
+        "value": 4,
+        "is_real": false
+      }
+    },
+    {
+      "tipo": "BinOpNode",
+      "op": "%",
+      "left": {
+        "tipo": "NumberNode",
+        "value": 17,
+        "is_real": false
+      },
+      "right": {
+        "tipo": "NumberNode",
+        "value": 5,
+        "is_real": false
+      }
+    },
+    {
+      "tipo": "BinOpNode",
+      "op": "|",
+      "left": {
+        "tipo": "NumberNode",
+        "value": 7.5,
+        "is_real": true
+      },
+      "right": {
+        "tipo": "NumberNode",
+        "value": 2.5,
+        "is_real": true
+      }
+    },
+    {
+      "tipo": "BinOpNode",
+      "op": "^",
+      "left": {
+        "tipo": "NumberNode",
+        "value": 2,
+        "is_real": false
+      },
+      "right": {
+        "tipo": "NumberNode",
+        "value": 5,
+        "is_real": false
+      }
+    },
+    {
+      "tipo": "ResNode",
+      "n": 1
+    },
+    {
+      "tipo": "MemWriteNode",
+      "name": "VALOR",
+      "value": {
+        "tipo": "NumberNode",
+        "value": 100,
+        "is_real": false
+      }
+    },
+    {
+      "tipo": "MemReadNode",
+      "name": "VALOR"
+    },
+    {
+      "tipo": "IfNode",
+      "condition": {
+        "tipo": "ConditionNode",
+        "op": ">",
+        "left": {
+          "tipo": "MemReadNode",
+          "name": "VALOR"
+        },
+        "right": {
+          "tipo": "NumberNode",
+          "value": 50,
+          "is_real": false
+        }
+      },
+      "then_block": [
+        {
+          "tipo": "MemWriteNode",
+          "name": "FLAG",
+          "value": {
+            "tipo": "NumberNode",
+            "value": 1,
+            "is_real": false
+          }
+        }
+      ],
+      "else_block": []
+    },
+    {
+      "tipo": "MemWriteNode",
+      "name": "CONT",
+      "value": {
+        "tipo": "NumberNode",
+        "value": 0,
+        "is_real": false
+      }
+    },
+    {
+      "tipo": "WhileNode",
+      "condition": {
+        "tipo": "ConditionNode",
+        "op": "<",
+        "left": {
+          "tipo": "MemReadNode",
+          "name": "CONT"
+        },
+        "right": {
+          "tipo": "NumberNode",
+          "value": 3,
+          "is_real": false
+        }
+      },
+      "body": [
+        {
+          "tipo": "MemWriteNode",
+          "name": "CONT",
+          "value": {
+            "tipo": "BinOpNode",
+            "op": "+",
+            "left": {
+              "tipo": "MemReadNode",
+              "name": "CONT"
+            },
+            "right": {
+              "tipo": "NumberNode",
+              "value": 1,
+              "is_real": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "tipo": "MemReadNode",
+      "name": "CONT"
+    },
+    {
+      "tipo": "MemReadNode",
+      "name": "VALOR"
+    }
+  ]
+}
