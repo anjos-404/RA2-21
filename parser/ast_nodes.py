@@ -50,11 +50,6 @@ class ResNode(ASTNode):
     n: int                 # N linhas anteriores
 
 
-@dataclass
-class PrintNode(ASTNode):
-    """Comando PRINT: (V PRINT)."""
-    value: ASTNode
-
 
 @dataclass
 class ConditionNode(ASTNode):
