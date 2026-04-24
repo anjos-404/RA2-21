@@ -1,0 +1,161 @@
+# Gramática Formal — Linguagem RPN Extended
+
+## Notação
+
+- **minúsculas** = não-terminais
+- **MAIÚSCULAS** / `símbolos` = terminais
+- `ε` = produção vazia (epsilon)
+- `|` = alternativa
+- `{ ... }` = repetição (zero ou mais)
+
+---
+
+## Gramática em EBNF
+
+```ebnf
+programa
+    ::= '(' START ')' { statement } '(' END ')'
+
+statement
+    ::= expression
+      | special_cmd
+      | control_struct
+
+expression
+    ::= '(' operand operand arith_op ')'
+
+operand
+    ::= INTEGER
+      | REAL
+      | MEM_NAME
+      | expression
+
+arith_op
+    ::= '+' | '-' | '*' | '|' | '/' | '%' | '^'
+
+relational_op
+    ::= '>' | '<' | '>=' | '<=' | '==' | '!='
+
+special_cmd
+    ::= '(' INTEGER RES ')'
+      | '(' operand MEM_NAME ')'
+      | '(' MEM_NAME ')'
+
+control_struct
+    ::= if_stmt
+      | while_stmt
+
+if_stmt
+    ::= '(' condition block IF ')'
+      | '(' condition block block IFELSE ')'
+
+while_stmt
+    ::= '(' condition block WHILE ')'
+
+condition
+    ::= '(' operand operand relational_op ')'
+
+block
+    ::= '[' { statement } ']'
+```
+
+---
+
+## Produções Numeradas (para Tabela LL(1))
+
+| # | Produção |
+|---|----------|
+| P1 | programa → `(` START `)` stmts `(` END `)` |
+| P2 | stmts → statement stmts |
+| P3 | stmts → ε |
+| P4 | statement → expression |
+| P5 | statement → special_cmd |
+| P6 | statement → control_struct |
+| P7 | expression → `(` operand operand arith_op `)` |
+| P8 | operand → INTEGER |
+| P9 | operand → REAL |
+| P10 | operand → MEM_NAME |
+| P11 | operand → expression |
+| P12 | arith_op → `+` |
+| P13 | arith_op → `-` |
+| P14 | arith_op → `*` |
+| P15 | arith_op → `\|` |
+| P16 | arith_op → `/` |
+| P17 | arith_op → `%` |
+| P18 | arith_op → `^` |
+| P19 | relational_op → `>` |
+| P20 | relational_op → `<` |
+| P21 | relational_op → `>=` |
+| P22 | relational_op → `<=` |
+| P23 | relational_op → `==` |
+| P24 | relational_op → `!=` |
+| P25 | special_cmd → `(` INTEGER RES `)` |
+| P26 | special_cmd → `(` operand MEM_NAME `)` |
+| P27 | special_cmd → `(` MEM_NAME `)` |
+| P28 | control_struct → if_stmt |
+| P29 | control_struct → while_stmt |
+| P30 | if_stmt → `(` condition block IF `)` |
+| P31 | if_stmt → `(` condition block block IFELSE `)` |
+| P32 | while_stmt → `(` condition block WHILE `)` |
+| P33 | condition → `(` operand operand relational_op `)` |
+| P34 | block → `[` stmts `]` |
+
+---
+
+## Conjuntos FIRST
+
+```
+FIRST(programa)       = { ( }
+FIRST(stmts)          = { (, ε }
+FIRST(statement)      = { ( }
+FIRST(expression)     = { ( }
+FIRST(operand)        = { INTEGER, REAL, MEM_NAME, ( }
+FIRST(arith_op)       = { +, -, *, |, /, %, ^ }
+FIRST(relational_op)  = { >, <, >=, <=, ==, != }
+FIRST(special_cmd)    = { ( }
+FIRST(control_struct) = { ( }
+FIRST(if_stmt)        = { ( }
+FIRST(while_stmt)     = { ( }
+FIRST(condition)      = { ( }
+FIRST(block)          = { [ }
+```
+
+---
+
+## Conjuntos FOLLOW
+
+```
+FOLLOW(programa)       = { $ }
+FOLLOW(stmts)          = { (, ], EOF }
+FOLLOW(statement)      = { (, ], EOF }
+FOLLOW(expression)     = FOLLOW(operand) ∪ FOLLOW(statement)
+FOLLOW(operand)        = { +, -, *, |, /, %, ^, >, <, >=, <=, ==, !=, INTEGER, REAL, MEM_NAME, ( }
+FOLLOW(arith_op)       = { ) }
+FOLLOW(relational_op)  = { ) }
+FOLLOW(special_cmd)    = FOLLOW(statement)
+FOLLOW(control_struct) = FOLLOW(statement)
+FOLLOW(if_stmt)        = FOLLOW(control_struct)
+FOLLOW(while_stmt)     = FOLLOW(control_struct)
+FOLLOW(condition)      = { [ }
+FOLLOW(block)          = { IF, IFELSE, WHILE, [, ) }
+```
+
+---
+
+## Resolução de Conflitos
+
+A gramática possui **ambiguidade aparente** porque `expression`, `special_cmd` e `control_struct`
+iniciam todos com `(`. A resolução é feita por **lookahead de profundidade variável**:
+
+| Conteúdo após `(` | Produção |
+|-------------------|----------|
+| `START` | → `programa` |
+| `END` | → fim de programa |
+| `INTEGER` seguido de `RES` | → `special_cmd` (N RES) |
+| `MEM_NAME` seguido de `)` | → `special_cmd` (MEM) — leitura |
+| `operand MEM_NAME` | → `special_cmd` (V MEM) — escrita |
+| Presença de `[` no nível 1 | → `control_struct` |
+| `operand operand arith_op` | → `expression` |
+
+O parser utiliza a função `_e_controle()` com scan forward para verificar
+a presença de `[` (bloco) dentro do nível 1 de parênteses.
