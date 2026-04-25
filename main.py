@@ -5,6 +5,7 @@
 # Integrantes:
 #   Christopher Gabriel Miranda da Cruz  (GitHub: Miiranda45)
 #   Mauricio dos Anjos Souza             (GitHub: anjos-404)
+# Nome do grupo no Canvas: [RA2-21]
 # =============================================================================
 # main.py — Ponto de entrada do compilador RPN.
 # Pipeline: lerTokens -> construirGramatica -> parsear -> gerarArvore -> gerarAssembly
