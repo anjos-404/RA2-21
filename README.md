@@ -1,53 +1,211 @@
-Trabalho — Linguagens Formais e Compiladores
-Informações
-Instituição: PUC-PR
+# Compilador RPN — Analisador Sintatico LL(1) + Assembly ARMv7
 
-Disciplina: Linguagens Formais e Compiladores
+**Fase 2: Analisador Sintatico LL(1)**
 
-Professor: FRANK COELHO DE ALCANTARA
+## Informacoes
 
-Integrantes:
+- **Instituicao:** PUC-PR
+- **Disciplina:** Linguagens Formais e Compiladores
+- **Professor:** Frank Coelho de Alcantara
 
-Christopher Gabriel Miranda da Cruz — GitHub: Miiranda45
+### Integrantes
 
-Mauricio dos Anjos Souza — GitHub: anjos-404
+- Christopher Gabriel Miranda da Cruz — GitHub: Miiranda45
+- Mauricio dos Anjos Souza — GitHub: anjos-404
 
-Objetivo
-Implementar um compilador completo para uma linguagem simplificada baseada em Notação Polonesa Reversa (RPN). O projeto engloba desde a Análise Léxica até a Análise Sintática (Parser LL(1) Descendente Recursivo), Geração de Árvore Sintática Abstrata (AST) e, finalmente, a tradução para código Assembly compatível com a arquitetura ARMv7 DEC1-SOC (CPULATOR).
+---
 
-Funcionalidades e Operações Suportadas
-O compilador lida nativamente com números de ponto flutuante (IEEE 754 Double Precision) e inteiros, suportando:
+## Sobre o Projeto
 
-Operações Básicas: Adição (+), Subtração (-), Multiplicação (*), Divisão Real (|).
+Implementacao completa de um compilador para uma linguagem baseada em
+Notacao Polonesa Reversa (RPN). O projeto cobre desde a analise lexica
+ate a geracao de codigo Assembly para a arquitetura ARMv7 (CPUlator
+DE1-SoC).
 
-Operações Avançadas: Divisão Inteira (/), Resto da divisão (%) e Potenciação (^).
+### Caracteristicas Principais
 
-Suporte a Variáveis Dinâmicas: É possível atribuir e ler variáveis da memória (usando letras 100% maiúsculas, ex: X, CONTADOR).
+- **Gramatica LL(1) pura**: FIRST/FIRST e FIRST/FOLLOW
+- **Parser LL(1) tabular**: (pilha + tabela M[A, a])
+- **Nao usa** lookahead > 1, backtracking, ou scan forward
+- **Validacao automatica**: construcao da tabela falha com excecao
+  se a gramatica nao for LL(1)
+- **IEEE 754** double precision (64 bits) para todos os numeros reais
+- **Assembly ARMv7** com VFP (instrucoes F64) para o CPUlator DE1-SoC
 
-Histórico de Resultados (RES): O comando N RES recupera o resultado de N operações anteriores.
+### Arquitetura Modular
 
-Estruturas de Controle: Tomada de decisão (IF, IFELSE) e laços de repetição (WHILE), todos mantendo a notação RPN com os blocos delimitados por colchetes [ ].
+```
+compilador/
+├── lexer/            # Analisador lexico
+│   ├── token.py      # Definicao de Token e TokenType
+│   └── ler_tokens.py # Funcao lerTokens()
+├── grammar/          # Construcao da gramatica
+│   ├── first_follow.py # Calculo de FIRST/FOLLOW
+│   ├── ll1_table.py    # Construcao rigorosa da tabela
+│   └── grammar.py      # Producoes e construirGramatica()
+├── parser/           # Analisador sintatico
+│   ├── parser.py     # Parser LL(1) tabular
+│   └── ast_nodes.py  # Nos da AST
+├── codegen/          # Geracao de codigo
+│   ├── ast_builder.py  # Derivacao -> AST
+│   └── assembly_gen.py # AST -> Assembly ARMv7
+├── errors/           # Hierarquia de erros
+│   └── errors.py
+├── tests/            # Testes unitarios e de integracao
+├── docs/             # Documentacao da gramatica
+└── main.py           # Ponto de entrada
+```
 
-Exemplo IF: ((X) 5 > [(1 RES)] IF)
+---
 
-Exemplo WHILE: ((CONT) 10 < [((CONT) 1 + CONT)] WHILE)
+## Sintaxe da Linguagem
 
-Arquitetura e Funcionamento
-O pipeline do compilador foi arquitetado em etapas modulares:
+### Marcadores Desambiguadores
 
-Analisador Léxico: Lê o arquivo-fonte e converte a string em uma lista de Tokens tipados, ignorando espaços e comentários.
+A linguagem usa marcadores explicitos para garantir que cada construcao
+seja identificavel por 1 token apos o `(`. Isso e o que permite a
+gramatica ser LL(1) pura.
 
-Construção da Gramática: Monta as regras EBNF da linguagem, calcula os conjuntos teóricos FIRST e FOLLOW, e constrói a Tabela de Análise LL(1) garantindo o determinismo.
+| Construcao              | Sintaxe LL(1)                            |
+|-------------------------|------------------------------------------|
+| Inicio de programa      | `START`                                  |
+| Fim de programa         | `END`                                    |
+| Expressao aritmetica    | `(EXPR a b op)`                          |
+| Resultado anterior      | `(CMD_RES N)`                            |
+| Leitura de memoria      | `(CMD_LOAD NOME)`                        |
+| Escrita em memoria      | `(CMD_STORE V NOME)`                     |
+| IF                      | `(IF (cond) [bloco])`                    |
+| IFELSE                  | `(IFELSE (cond) [then] [else])`          |
+| WHILE                   | `(WHILE (cond) [corpo])`                 |
 
-Análise Sintática (Parser): Utiliza um parser preditivo tabular descendente recursivo com pilha para validar a sequência de tokens contra a tabela LL(1), gerando uma árvore de derivação inicial.
+### Operadores
 
-Geração da AST: Transforma a árvore de derivação bruta em uma Árvore Sintática Abstrata (AST) enxuta, mapeando operações matemáticas e blocos lógicos.
+- **Aritmeticos:** `+` `-` `*` `|` (divisao real) `/` (divisao inteira) `%` `^`
+- **Relacionais:** `>` `<` `>=` `<=` `==` `!=`
 
-Gerador de Código Assembly: Aplica o padrão Visitor para percorrer a AST de baixo para cima. Utiliza uma estratégia avançada de Pool de Registradores (Fila de registradores livres) para resolver expressões altamente aninhadas usando a Unidade de Ponto Flutuante (FPU) do ARMv7, sem sobrescrever valores temporários.
+### Exemplo
 
-Compilação e Uso
-Executando o script Python
-Crie um arquivo de texto (ex: teste1.txt) contendo o código RPN, sempre começando com (START) e terminando com (END). Em seguida, execute o arquivo principal passando o teste como argumento:
+```
+START
 
-Bash
+(CMD_STORE 100 VALOR)
+(CMD_STORE 0 CONT)
+
+(WHILE (CONT 3 <) [
+    (CMD_STORE (EXPR CONT 1 +) CONT)
+])
+
+(IFELSE (VALOR 50 >)
+    [(CMD_STORE 1 FLAG)]
+    [(CMD_STORE 0 FLAG)])
+
+(CMD_LOAD VALOR)
+(CMD_RES 1)
+
+END
+```
+
+---
+
+## Uso
+
+### Compilacao
+
+```bash
 python main.py tests/teste1.txt
+```
+
+Saidas geradas:
+- `tests/teste1_ast.json` — AST em formato JSON
+- `tests/teste1.s` — Codigo Assembly ARMv7
+
+### Testes
+
+```bash
+# Todos os testes
+pytest tests/ -v
+
+# Apenas gramatica
+pytest tests/test_grammar.py -v
+
+# Apenas parser
+pytest tests/test_parser.py -v
+
+# Apenas integracao
+pytest tests/test_integration.py -v
+```
+
+**99 testes unitarios e de integracao, todos passando.**
+
+---
+
+## Pipeline do Compilador
+
+```
+Arquivo .txt
+    |
+    v
+[Lexer]  lerTokens() -> Lista de Tokens
+    |
+    v
+[Gramatica]  construirGramatica() -> FIRST, FOLLOW, Tabela LL(1)
+    |
+    v
+[Parser]  parsear() -> Arvore de Derivacao
+    |
+    v
+[AST Builder]  gerarArvore() -> AST
+    |
+    v
+[CodeGen]  gerarAssembly() -> Codigo ARMv7
+    |
+    v
+Arquivo .s + .json
+```
+
+---
+
+## Garantia de LL(1)
+
+O projeto **garante** que a gramatica e o parser sao genuinamente LL(1):
+
+1. A construcao da tabela em `grammar/ll1_table.py` **levanta excecao**
+   se qualquer celula receberia duas producoes distintas (ou seja, se
+   houvesse qualquer conflito FIRST/FIRST ou FIRST/FOLLOW).
+
+2. O parser em `parser/parser.py` consulta **apenas** `M[A, a]` com
+   o topo da pilha e o token atual — nao ha lookahead adicional,
+   backtracking, ou logica ad-hoc.
+
+3. Os testes em `tests/test_grammar.py` verificam explicitamente
+   que nao ha conflitos FIRST/FIRST nem FIRST/FOLLOW em nenhuma
+   producao.
+
+Para inspecionar a tabela:
+
+```python
+from grammar.grammar import construirGramatica
+from grammar.ll1_table import imprimir_tabela
+
+g = construirGramatica()
+imprimir_tabela(g)
+```
+
+---
+
+## Documentacao da Gramatica
+
+Ver `docs/gramatica.txt` para a especificacao formal completa em EBNF,
+com producoes numeradas, conjuntos FIRST e FOLLOW calculados, e analise
+de conflitos.
+
+---
+
+## Detalhes do Assembly Gerado
+
+- Target: **ARMv7 DE1-SoC (CPUlator v16.1)**
+- Ponto flutuante: **IEEE 754 double-precision (64 bits)**
+- Extensao: **VFPv3** (instrucoes `VADD.F64`, `VSUB.F64`, etc.)
+- Memoria: variaveis alocadas como `.double` (8 bytes, alinhadas)
+- Historico de resultados (`CMD_RES`): armazenado em slots `res_N`
+- Halt: loop infinito ao final (bare-metal)

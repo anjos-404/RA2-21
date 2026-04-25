@@ -1,5 +1,13 @@
-# grammar/grammar.py — Parte 1
-# Definição da gramática RPN, produções e função construirGramatica().
+# grammar/grammar.py — Gramática LL(1) pura para a linguagem RPN estendida.
+
+# Exemplo de tradução da sintaxe original para a sintaxe LL(1):
+#   Original: (3 4 +)             →  LL(1): (EXPR 3 4 +)
+#   Original: (5 RES)             →  LL(1): (CMD_RES 5)
+#   Original: (42 X)              →  LL(1): (CMD_STORE 42 X)
+#   Original: (X)                 →  LL(1): (CMD_LOAD X)
+#   Original: (cond [then] IF)    →  LL(1): (IF cond [then])
+#   Original: (cond [t] [e] IFELSE) → LL(1): (IFELSE cond [t] [e])
+#   Original: (cond [body] WHILE) →  LL(1): (WHILE cond [body])
 
 from dataclasses import dataclass, field
 from grammar.first_follow import calcularFirst, calcularFollow
@@ -8,12 +16,12 @@ from grammar.ll1_table import construirTabelaLL1
 
 @dataclass
 class Producao:
-    """Uma produção da gramática: cabeça → corpo."""
-    cabeca: str          # não-terminal 
-    corpo: list[str]     # lista de símbolos
+    """Uma produção da gramática: cabeca → corpo."""
+    cabeca: str          # não-terminal
+    corpo: list[str]     # sequência de símbolos (vazia = ε)
 
     def __repr__(self):
-        corpo_str = ' '.join(self.corpo) if self.corpo else 'ε'
+        corpo_str = " ".join(self.corpo) if self.corpo else "ε"
         return f"{self.cabeca} → {corpo_str}"
 
 
@@ -31,42 +39,51 @@ class Gramatica:
 
 def construirGramatica() -> Gramatica:
     """
-    Retorna a gramática completa com FIRST, FOLLOW e tabela LL(1) calculados.
-    Entrada: Nenhuma (gramática é fixa).
-    Saída: objeto Gramatica pronto para ser consumido por parsear().
+    Retorna a gramática LL(1) pura com FIRST, FOLLOW e tabela LL(1) calculados.
+
+    A gramática é fixa — essa função é idempotente.
+    A tabela LL(1) é construída sem conflitos.
     """
     producoes = [
-        # Programa
-        Producao("programa",    ["LPAREN", "START", "RPAREN", "stmts", "LPAREN", "END", "RPAREN"]),
+        # ---- Programa: START <stmts> END ----
+        Producao("programa", ["START", "stmts", "END"]),
 
-        # Lista de statements (com epsilon)
-        Producao("stmts",       ["statement", "stmts"]),
-        Producao("stmts",       []),   # produção epsilon
+        # ---- Lista de statements (pode ser vazia) ----
+        Producao("stmts", ["statement", "stmts"]),
+        Producao("stmts", []),                          # ε
 
-        # Statement → expression | special_cmd | control_struct
-        Producao("statement",   ["expression"]),
-        Producao("statement",   ["special_cmd"]),
-        Producao("statement",   ["control_struct"]),
+        # ---- Statement: sempre '(' seguido de marcador ----
+        Producao("statement", ["LPAREN", "stmt_tail"]),
 
-        # Expressão binária: (operand operand arith_op)
-        Producao("expression",  ["LPAREN", "operand", "operand", "arith_op", "RPAREN"]),
+        # ---- stmt_tail: escolha determinada pelo marcador ----
+        Producao("stmt_tail", ["EXPR", "operand", "operand", "arith_op", "RPAREN"]),
+        Producao("stmt_tail", ["CMD_RES", "INTEGER", "RPAREN"]),
+        Producao("stmt_tail", ["CMD_LOAD", "MEM_NAME", "RPAREN"]),
+        Producao("stmt_tail", ["CMD_STORE", "operand", "MEM_NAME", "RPAREN"]),
+        Producao("stmt_tail", ["IF", "condition", "block", "RPAREN"]),
+        Producao("stmt_tail", ["IFELSE", "condition", "block", "block", "RPAREN"]),
+        Producao("stmt_tail", ["WHILE", "condition", "block", "RPAREN"]),
 
-        # Operandos
-        Producao("operand",     ["INTEGER"]),
-        Producao("operand",     ["REAL"]),
-        Producao("operand",     ["MEM_NAME"]),
-        Producao("operand",     ["expression"]),
+        # ---- Operando: escolha determinada pelo primeiro token ----
+        Producao("operand", ["INTEGER"]),
+        Producao("operand", ["REAL"]),
+        Producao("operand", ["MEM_NAME"]),
+        Producao("operand", ["LPAREN", "operand_paren_tail"]),
 
-        # Operadores aritméticos
-        Producao("arith_op",    ["PLUS"]),
-        Producao("arith_op",    ["MINUS"]),
-        Producao("arith_op",    ["MUL"]),
-        Producao("arith_op",    ["DIV_REAL"]),
-        Producao("arith_op",    ["DIV_INT"]),
-        Producao("arith_op",    ["MOD"]),
-        Producao("arith_op",    ["POW"]),
+        # ---- operand_paren_tail: sub-expressão dentro de operand ----
+        Producao("operand_paren_tail", ["EXPR", "operand", "operand", "arith_op", "RPAREN"]),
+        Producao("operand_paren_tail", ["CMD_LOAD", "MEM_NAME", "RPAREN"]),
 
-        # Operadores relacionais
+        # ---- Operadores aritméticos ----
+        Producao("arith_op", ["PLUS"]),
+        Producao("arith_op", ["MINUS"]),
+        Producao("arith_op", ["MUL"]),
+        Producao("arith_op", ["DIV_REAL"]),
+        Producao("arith_op", ["DIV_INT"]),
+        Producao("arith_op", ["MOD"]),
+        Producao("arith_op", ["POW"]),
+
+        # ---- Operadores relacionais ----
         Producao("relational_op", ["GT"]),
         Producao("relational_op", ["LT"]),
         Producao("relational_op", ["GTE"]),
@@ -74,40 +91,26 @@ def construirGramatica() -> Gramatica:
         Producao("relational_op", ["EQ"]),
         Producao("relational_op", ["NEQ"]),
 
-        # Comandos especiais
-        Producao("special_cmd",   ["LPAREN", "INTEGER", "RES", "RPAREN"]),
-        Producao("special_cmd",   ["LPAREN", "operand", "MEM_NAME", "RPAREN"]),
-        Producao("special_cmd",   ["LPAREN", "MEM_NAME", "RPAREN"]),
+        # ---- Condição: (operand operand relop) ----
+        Producao("condition", ["LPAREN", "operand", "operand", "relational_op", "RPAREN"]),
 
-        # Estruturas de controle
-        Producao("control_struct", ["if_stmt"]),
-        Producao("control_struct", ["while_stmt"]),
-
-        # IF e IFELSE
-        Producao("if_stmt",     ["LPAREN", "condition", "block", "IF", "RPAREN"]),
-        Producao("if_stmt",     ["LPAREN", "condition", "block", "block", "IFELSE", "RPAREN"]),
-
-        # WHILE
-        Producao("while_stmt",  ["LPAREN", "condition", "block", "WHILE", "RPAREN"]),
-
-        # Condição: (operand operand relational_op)
-        Producao("condition",   ["LPAREN", "operand", "operand", "relational_op", "RPAREN"]),
-
-        # Bloco: [stmts]
-        Producao("block",       ["LBRACKET", "stmts", "RBRACKET"]),
+        # ---- Bloco: [ stmts ] ----
+        Producao("block", ["LBRACKET", "stmts", "RBRACKET"]),
     ]
 
     nao_terminais = {p.cabeca for p in producoes}
     terminais = {
         "LPAREN", "RPAREN", "LBRACKET", "RBRACKET",
-        "START", "END", "INTEGER", "REAL", "MEM_NAME", "RES",
+        "START", "END", "INTEGER", "REAL", "MEM_NAME",
+        "EXPR", "CMD_RES", "CMD_LOAD", "CMD_STORE",
+        "IF", "IFELSE", "WHILE",
         "PLUS", "MINUS", "MUL", "DIV_REAL", "DIV_INT", "MOD", "POW",
         "GT", "LT", "GTE", "LTE", "EQ", "NEQ",
-        "IF", "IFELSE", "WHILE", "EOF"
+        "EOF",
     }
 
     g = Gramatica(producoes, nao_terminais, terminais)
-    g.first  = calcularFirst(g)
+    g.first = calcularFirst(g)
     g.follow = calcularFollow(g)
     g.tabela = construirTabelaLL1(g)
     return g

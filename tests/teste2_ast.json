@@ -38,6 +38,19 @@
     },
     {
       "tipo": "BinOpNode",
+      "op": "-",
+      "left": {
+        "tipo": "MemReadNode",
+        "name": "X"
+      },
+      "right": {
+        "tipo": "NumberNode",
+        "value": 5,
+        "is_real": false
+      }
+    },
+    {
+      "tipo": "BinOpNode",
       "op": "*",
       "left": {
         "tipo": "MemReadNode",
@@ -47,6 +60,62 @@
         "tipo": "NumberNode",
         "value": 2.0,
         "is_real": true
+      }
+    },
+    {
+      "tipo": "BinOpNode",
+      "op": "|",
+      "left": {
+        "tipo": "NumberNode",
+        "value": 10.0,
+        "is_real": true
+      },
+      "right": {
+        "tipo": "NumberNode",
+        "value": 4.0,
+        "is_real": true
+      }
+    },
+    {
+      "tipo": "BinOpNode",
+      "op": "/",
+      "left": {
+        "tipo": "NumberNode",
+        "value": 17,
+        "is_real": false
+      },
+      "right": {
+        "tipo": "NumberNode",
+        "value": 5,
+        "is_real": false
+      }
+    },
+    {
+      "tipo": "BinOpNode",
+      "op": "%",
+      "left": {
+        "tipo": "NumberNode",
+        "value": 17,
+        "is_real": false
+      },
+      "right": {
+        "tipo": "NumberNode",
+        "value": 5,
+        "is_real": false
+      }
+    },
+    {
+      "tipo": "BinOpNode",
+      "op": "^",
+      "left": {
+        "tipo": "NumberNode",
+        "value": 2,
+        "is_real": false
+      },
+      "right": {
+        "tipo": "NumberNode",
+        "value": 8,
+        "is_real": false
       }
     },
     {
@@ -85,20 +154,6 @@
     {
       "tipo": "ResNode",
       "n": 1
-    },
-    {
-      "tipo": "BinOpNode",
-      "op": "|",
-      "left": {
-        "tipo": "NumberNode",
-        "value": 10.0,
-        "is_real": true
-      },
-      "right": {
-        "tipo": "NumberNode",
-        "value": 4.0,
-        "is_real": true
-      }
     },
     {
       "tipo": "IfNode",

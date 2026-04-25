@@ -1,5 +1,5 @@
-# grammar/ll1_table.py — Parte 1
-# Construção da tabela de análise LL(1).
+# grammar/ll1_table.py — Construção rigorosa da tabela de análise LL(1).
+# Esta implementação NÃO permite conflitos. Se a gramática não for LL(1),
 
 from __future__ import annotations
 from typing import TYPE_CHECKING
@@ -7,75 +7,82 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from grammar.grammar import Gramatica, Producao
 
-from grammar.first_follow import first_of_sequence
-
-
-# Conflitos conhecidos e esperados na gramática RPN
-CONFLITOS_PERMITIDOS = {
-    ("statement", "LPAREN"),       # expression vs special_cmd vs control_struct
-    ("control_struct", "LPAREN"),  # if_stmt vs while_stmt
-    ("stmts", "LPAREN"),           # statement stmts vs ε (pode acontecer via FOLLOW)
-    ("special_cmd", "LPAREN"),     # (N RES) vs (V MEM) vs (MEM)
-    ("if_stmt", "LPAREN"),         # IF vs IFELSE
-    ("operand", "LPAREN"),         # expression como operand
-}
+from grammar.first_follow import first_of_sequence, EPSILON
+from errors.errors import GrammarError
 
 
 def construirTabelaLL1(g: "Gramatica") -> dict[tuple, "Producao"]:
     """
-    Constrói tabela M[A, a] para parser LL(1).
-    Chave: (nao_terminal, terminal)
-    Valor: Producao a aplicar
+    Constrói a tabela de análise preditiva LL(1) M[A, a].
 
-    Para conflitos conhecidos (e.g., statement + LPAREN), a tabela armazena
-    a PRIMEIRA produção encontrada. O parser descendente recursivo resolve
-    esses conflitos com lookahead.
+    Regra de preenchimento:
+      Para cada produção A → α da gramática:
+        (1) Para cada terminal a em FIRST(α) - {ε}:
+              M[A, a] := A → α
+        (2) Se ε ∈ FIRST(α), então para cada b em FOLLOW(A):
+              M[A, b] := A → α
 
-    Levanta ValueError apenas para conflitos INESPERADOS.
+    Se alguma célula receberia duas produções diferentes, a gramática
+    NÃO é LL(1) e uma exceção é levantada com detalhes do conflito.
     """
     tabela: dict[tuple, "Producao"] = {}
-    conflitos_registrados: list[str] = []
+    conflitos: list[str] = []
+
+    def _definir(nt: str, terminal: str, prod: "Producao"):
+        """Define M[nt, terminal] = prod ou detecta conflito."""
+        chave = (nt, terminal)
+        if chave in tabela:
+            existente = tabela[chave]
+            if existente.corpo != prod.corpo or existente.cabeca != prod.cabeca:
+                conflitos.append(
+                    f"  Conflito em M[{nt}, {terminal}]:\n"
+                    f"    candidato 1: {existente}\n"
+                    f"    candidato 2: {prod}"
+                )
+        else:
+            tabela[chave] = prod
 
     for prod in g.producoes:
         nt = prod.cabeca
         first_alpha = first_of_sequence(prod.corpo, g.first)
 
-        for terminal in first_alpha - {"ε"}:
-            chave = (nt, terminal)
-            if chave in tabela:
-                if chave in CONFLITOS_PERMITIDOS:
-                    # Conflito esperado — manter a primeira produção
-                    conflitos_registrados.append(
-                        f"  [tolerado] M[{nt}, {terminal}]: "
-                        f"'{tabela[chave]}' mantida (ignorando '{prod}')"
-                    )
-                else:
-                    # Resolver por tamanho do corpo
-                    existente = tabela[chave]
-                    if len(prod.corpo) > len(existente.corpo):
-                        tabela[chave] = prod
-                    elif len(prod.corpo) == len(existente.corpo) and prod.corpo != existente.corpo:
-                        raise ValueError(
-                            f"Conflito LL(1) inesperado em M[{nt}, {terminal}]: "
-                            f"'{existente}' vs '{prod}'"
-                        )
-            else:
-                tabela[chave] = prod
+        # (1) FIRST(α) - {ε}
+        for terminal in first_alpha - {EPSILON}:
+            _definir(nt, terminal, prod)
 
-        if "ε" in first_alpha:
+        # (2) Se α pode derivar ε, usar FOLLOW(A)
+        if EPSILON in first_alpha:
             for terminal in g.follow.get(nt, set()):
-                chave = (nt, terminal)
-                if chave in tabela:
-                    existente = tabela[chave]
-                    if existente.corpo:
-                        # Produção não-epsilon tem prioridade
-                        continue
-                    if chave in CONFLITOS_PERMITIDOS:
-                        continue
-                    raise ValueError(
-                        f"Conflito LL(1) inesperado em M[{nt}, {terminal}]: "
-                        f"'{existente}' vs '{prod}'"
-                    )
-                tabela[chave] = prod
+                _definir(nt, terminal, prod)
+
+    if conflitos:
+        raise GrammarError(
+            "A gramática não é LL(1). Conflitos detectados:\n"
+            + "\n".join(conflitos)
+        )
 
     return tabela
+
+
+def imprimir_tabela(g: "Gramatica", arquivo=None):
+    """Imprime a tabela LL(1) em formato tabular (para debug/documentação)."""
+    # Coletar terminais usados como colunas
+    terminais_usados = sorted({k[1] for k in g.tabela.keys()})
+    nao_terminais = sorted({k[0] for k in g.tabela.keys()})
+
+    def out(msg):
+        if arquivo:
+            print(msg, file=arquivo)
+        else:
+            print(msg)
+
+    # Cabeçalho
+    out("Tabela LL(1):")
+    out("=" * 80)
+    for nt in nao_terminais:
+        out(f"\n[{nt}]")
+        for t in terminais_usados:
+            if (nt, t) in g.tabela:
+                out(f"  {t:14s}  →  {g.tabela[(nt, t)]}")
+    out("\n" + "=" * 80)
+    out(f"Total de entradas: {len(g.tabela)}")

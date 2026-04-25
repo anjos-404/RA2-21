@@ -1,123 +1,134 @@
-# Gramática Formal — Linguagem RPN Extended
+# Gramatica Formal — Linguagem RPN Estendida (LL(1) Pura)
 
-## Notação
+## Notacao
 
-- **minúsculas** = não-terminais
-- **MAIÚSCULAS** / `símbolos` = terminais
-- `ε` = produção vazia (epsilon)
+- **minusculas** = nao-terminais
+- **MAIUSCULAS** / `simbolos` = terminais
+- `epsilon` = producao vazia
 - `|` = alternativa
-- `{ ... }` = repetição (zero ou mais)
 
 ---
 
-## Gramática em EBNF
+## Visao Geral
 
-```ebnf
-programa
-    ::= '(' START ')' { statement } '(' END ')'
+Esta gramatica define uma linguagem baseada em Notacao Polonesa Reversa (RPN)
+com marcadores desambiguadores que garantem que cada producao tenha um
+conjunto FIRST unico. **A gramatica e LL(1) no sentido estrito**: zero
+conflitos FIRST/FIRST e zero conflitos FIRST/FOLLOW.
 
-statement
-    ::= expression
-      | special_cmd
-      | control_struct
+### Marcadores desambiguadores
 
-expression
-    ::= '(' operand operand arith_op ')'
+- `EXPR`      — marca expressao aritmetica
+- `CMD_RES`   — marca comando de resultado anterior
+- `CMD_LOAD`  — marca leitura de memoria
+- `CMD_STORE` — marca escrita em memoria
+- `IF`, `IFELSE`, `WHILE` — marcadores de estruturas de controle
 
-operand
-    ::= INTEGER
-      | REAL
-      | MEM_NAME
-      | expression
+### Sintaxe
 
-arith_op
-    ::= '+' | '-' | '*' | '|' | '/' | '%' | '^'
+```
+Programa:    START <stmts> END
 
-relational_op
-    ::= '>' | '<' | '>=' | '<=' | '==' | '!='
-
-special_cmd
-    ::= '(' INTEGER RES ')'
-      | '(' operand MEM_NAME ')'
-      | '(' MEM_NAME ')'
-
-control_struct
-    ::= if_stmt
-      | while_stmt
-
-if_stmt
-    ::= '(' condition block IF ')'
-      | '(' condition block block IFELSE ')'
-
-while_stmt
-    ::= '(' condition block WHILE ')'
-
-condition
-    ::= '(' operand operand relational_op ')'
-
-block
-    ::= '[' { statement } ']'
+Expressao:   (EXPR a b op)
+RES:         (CMD_RES N)
+Leitura:     (CMD_LOAD NOME)
+Escrita:     (CMD_STORE V NOME)
+IF:          (IF (cond) [bloco])
+IFELSE:      (IFELSE (cond) [then] [else])
+WHILE:       (WHILE (cond) [corpo])
 ```
 
 ---
 
-## Produções Numeradas (para Tabela LL(1))
+## Gramatica em EBNF
 
-| # | Produção |
-|---|----------|
-| P1 | programa → `(` START `)` stmts `(` END `)` |
-| P2 | stmts → statement stmts |
-| P3 | stmts → ε |
-| P4 | statement → expression |
-| P5 | statement → special_cmd |
-| P6 | statement → control_struct |
-| P7 | expression → `(` operand operand arith_op `)` |
-| P8 | operand → INTEGER |
-| P9 | operand → REAL |
-| P10 | operand → MEM_NAME |
-| P11 | operand → expression |
-| P12 | arith_op → `+` |
-| P13 | arith_op → `-` |
-| P14 | arith_op → `*` |
-| P15 | arith_op → `\|` |
-| P16 | arith_op → `/` |
-| P17 | arith_op → `%` |
-| P18 | arith_op → `^` |
-| P19 | relational_op → `>` |
-| P20 | relational_op → `<` |
-| P21 | relational_op → `>=` |
-| P22 | relational_op → `<=` |
-| P23 | relational_op → `==` |
-| P24 | relational_op → `!=` |
-| P25 | special_cmd → `(` INTEGER RES `)` |
-| P26 | special_cmd → `(` operand MEM_NAME `)` |
-| P27 | special_cmd → `(` MEM_NAME `)` |
-| P28 | control_struct → if_stmt |
-| P29 | control_struct → while_stmt |
-| P30 | if_stmt → `(` condition block IF `)` |
-| P31 | if_stmt → `(` condition block block IFELSE `)` |
-| P32 | while_stmt → `(` condition block WHILE `)` |
-| P33 | condition → `(` operand operand relational_op `)` |
-| P34 | block → `[` stmts `]` |
+```ebnf
+programa           ::= START stmts END
+
+stmts              ::= statement stmts
+                     | epsilon
+
+statement          ::= '(' stmt_tail
+
+stmt_tail          ::= EXPR operand operand arith_op ')'
+                     | CMD_RES INTEGER ')'
+                     | CMD_LOAD MEM_NAME ')'
+                     | CMD_STORE operand MEM_NAME ')'
+                     | IF condition block ')'
+                     | IFELSE condition block block ')'
+                     | WHILE condition block ')'
+
+operand            ::= INTEGER
+                     | REAL
+                     | MEM_NAME
+                     | '(' operand_paren_tail
+
+operand_paren_tail ::= EXPR operand operand arith_op ')'
+                     | CMD_LOAD MEM_NAME ')'
+
+arith_op           ::= '+' | '-' | '*' | '|' | '/' | '%' | '^'
+
+relational_op      ::= '>' | '<' | '>=' | '<=' | '==' | '!='
+
+condition          ::= '(' operand operand relational_op ')'
+
+block              ::= '[' stmts ']'
+```
+
+---
+
+## Producoes Numeradas (para Tabela LL(1))
+
+```
+ P1  programa           -> START stmts END
+ P2  stmts              -> statement stmts
+ P3  stmts              -> epsilon
+ P4  statement          -> ( stmt_tail
+ P5  stmt_tail          -> EXPR operand operand arith_op )
+ P6  stmt_tail          -> CMD_RES INTEGER )
+ P7  stmt_tail          -> CMD_LOAD MEM_NAME )
+ P8  stmt_tail          -> CMD_STORE operand MEM_NAME )
+ P9  stmt_tail          -> IF condition block )
+ P10 stmt_tail          -> IFELSE condition block block )
+ P11 stmt_tail          -> WHILE condition block )
+ P12 operand            -> INTEGER
+ P13 operand            -> REAL
+ P14 operand            -> MEM_NAME
+ P15 operand            -> ( operand_paren_tail
+ P16 operand_paren_tail -> EXPR operand operand arith_op )
+ P17 operand_paren_tail -> CMD_LOAD MEM_NAME )
+ P18 arith_op           -> +
+ P19 arith_op           -> -
+ P20 arith_op           -> *
+ P21 arith_op           -> |
+ P22 arith_op           -> /
+ P23 arith_op           -> %
+ P24 arith_op           -> ^
+ P25 relational_op      -> >
+ P26 relational_op      -> <
+ P27 relational_op      -> >=
+ P28 relational_op      -> <=
+ P29 relational_op      -> ==
+ P30 relational_op      -> !=
+ P31 condition          -> ( operand operand relational_op )
+ P32 block              -> [ stmts ]
+```
 
 ---
 
 ## Conjuntos FIRST
 
 ```
-FIRST(programa)       = { ( }
-FIRST(stmts)          = { (, ε }
-FIRST(statement)      = { ( }
-FIRST(expression)     = { ( }
-FIRST(operand)        = { INTEGER, REAL, MEM_NAME, ( }
-FIRST(arith_op)       = { +, -, *, |, /, %, ^ }
-FIRST(relational_op)  = { >, <, >=, <=, ==, != }
-FIRST(special_cmd)    = { ( }
-FIRST(control_struct) = { ( }
-FIRST(if_stmt)        = { ( }
-FIRST(while_stmt)     = { ( }
-FIRST(condition)      = { ( }
-FIRST(block)          = { [ }
+FIRST(programa)           = { START }
+FIRST(stmts)              = { (, epsilon }
+FIRST(statement)          = { ( }
+FIRST(stmt_tail)          = { EXPR, CMD_RES, CMD_LOAD, CMD_STORE, IF, IFELSE, WHILE }
+FIRST(operand)            = { INTEGER, REAL, MEM_NAME, ( }
+FIRST(operand_paren_tail) = { EXPR, CMD_LOAD }
+FIRST(arith_op)           = { +, -, *, |, /, %, ^ }
+FIRST(relational_op)      = { >, <, >=, <=, ==, != }
+FIRST(condition)          = { ( }
+FIRST(block)              = { [ }
 ```
 
 ---
@@ -125,37 +136,83 @@ FIRST(block)          = { [ }
 ## Conjuntos FOLLOW
 
 ```
-FOLLOW(programa)       = { $ }
-FOLLOW(stmts)          = { (, ], EOF }
-FOLLOW(statement)      = { (, ], EOF }
-FOLLOW(expression)     = FOLLOW(operand) ∪ FOLLOW(statement)
-FOLLOW(operand)        = { +, -, *, |, /, %, ^, >, <, >=, <=, ==, !=, INTEGER, REAL, MEM_NAME, ( }
-FOLLOW(arith_op)       = { ) }
-FOLLOW(relational_op)  = { ) }
-FOLLOW(special_cmd)    = FOLLOW(statement)
-FOLLOW(control_struct) = FOLLOW(statement)
-FOLLOW(if_stmt)        = FOLLOW(control_struct)
-FOLLOW(while_stmt)     = FOLLOW(control_struct)
-FOLLOW(condition)      = { [ }
-FOLLOW(block)          = { IF, IFELSE, WHILE, [, ) }
+FOLLOW(programa)           = { EOF }
+FOLLOW(stmts)              = { END, ] }
+FOLLOW(statement)          = { (, END, ] }
+FOLLOW(stmt_tail)          = FOLLOW(statement)
+FOLLOW(operand)            = { +, -, *, |, /, %, ^,
+                               >, <, >=, <=, ==, !=,
+                               INTEGER, REAL, MEM_NAME, (, MEM_NAME }
+FOLLOW(operand_paren_tail) = FOLLOW(operand)
+FOLLOW(arith_op)           = { ) }
+FOLLOW(relational_op)      = { ) }
+FOLLOW(condition)          = { [ }
+FOLLOW(block)              = { ), [ }
 ```
 
 ---
 
-## Resolução de Conflitos
+## Analise de Conflitos
 
-A gramática possui **ambiguidade aparente** porque `expression`, `special_cmd` e `control_struct`
-iniciam todos com `(`. A resolução é feita por **lookahead de profundidade variável**:
+### FIRST/FIRST
 
-| Conteúdo após `(` | Produção |
-|-------------------|----------|
-| `START` | → `programa` |
-| `END` | → fim de programa |
-| `INTEGER` seguido de `RES` | → `special_cmd` (N RES) |
-| `MEM_NAME` seguido de `)` | → `special_cmd` (MEM) — leitura |
-| `operand MEM_NAME` | → `special_cmd` (V MEM) — escrita |
-| Presença de `[` no nível 1 | → `control_struct` |
-| `operand operand arith_op` | → `expression` |
+Para todas as producoes `A -> alpha_1 | alpha_2 | ... | alpha_n`:
 
-O parser utiliza a função `_e_controle()` com scan forward para verificar
-a presença de `[` (bloco) dentro do nível 1 de parênteses.
+| Nao-Terminal       | Alternativas                                                 | Intersecao FIRST |
+|--------------------|--------------------------------------------------------------|------------------|
+| stmts              | `statement stmts` vs `epsilon`                               | vazio            |
+| stmt_tail          | EXPR/CMD_RES/CMD_LOAD/CMD_STORE/IF/IFELSE/WHILE (7 alt.)     | vazio            |
+| operand            | INTEGER/REAL/MEM_NAME/`(`                                    | vazio            |
+| operand_paren_tail | EXPR vs CMD_LOAD                                             | vazio            |
+| arith_op           | +/-/\*/\|//%/^                                               | vazio            |
+| relational_op      | >/</>=/<=/==/!=                                              | vazio            |
+
+**Zero conflitos FIRST/FIRST.**
+
+### FIRST/FOLLOW
+
+Para producoes que podem derivar epsilon:
+
+| Nao-Terminal | FIRST das outras     | FOLLOW    | Intersecao |
+|--------------|----------------------|-----------|------------|
+| stmts        | FIRST(statement)={(} | {END, ]}  | vazio      |
+
+**Zero conflitos FIRST/FOLLOW.**
+
+---
+
+## Tabela LL(1)
+
+A tabela foi construida pelo algoritmo classico:
+
+- Para cada producao `A -> alpha`:
+  - Para todo `a` em `FIRST(alpha) - {epsilon}`: `M[A, a] = A -> alpha`
+  - Se `epsilon` em `FIRST(alpha)`: para todo `b` em `FOLLOW(A)`: `M[A, b] = A -> alpha`
+
+A tabela resultante tem **33 entradas** e e **deterministica** (cada celula
+contem no maximo uma producao).
+
+---
+
+## Parser
+
+O parser (`parser/parser.py`) e uma implementacao direta do algoritmo
+LL(1) preditivo tabular com pilha:
+
+```
+pilha = [EOF, simbolo_inicial]
+enquanto topo(pilha) != EOF:
+    X = topo(pilha)
+    a = token_atual
+    se X e terminal:
+        se X == a: consome token e pop
+        senao: erro
+    senao (X e nao-terminal):
+        consulta M[X, a]
+        se existe producao X -> Y1 Y2 ... Yn:
+            pop X, empilha Yn, Yn-1, ..., Y1
+        senao: erro
+```
+
+**Nao usa lookahead > 1. Nao faz backtracking. Nao usa scan forward.**
+Todas as decisoes sao tomadas pela tabela.

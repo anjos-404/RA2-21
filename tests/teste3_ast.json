@@ -108,6 +108,56 @@
     },
     {
       "tipo": "MemWriteNode",
+      "name": "MEURES",
+      "value": {
+        "tipo": "BinOpNode",
+        "op": "-",
+        "left": {
+          "tipo": "BinOpNode",
+          "op": "+",
+          "left": {
+            "tipo": "NumberNode",
+            "value": 3,
+            "is_real": false
+          },
+          "right": {
+            "tipo": "NumberNode",
+            "value": 2,
+            "is_real": false
+          }
+        },
+        "right": {
+          "tipo": "BinOpNode",
+          "op": "*",
+          "left": {
+            "tipo": "NumberNode",
+            "value": 4,
+            "is_real": false
+          },
+          "right": {
+            "tipo": "NumberNode",
+            "value": 5,
+            "is_real": false
+          }
+        }
+      }
+    },
+    {
+      "tipo": "BinOpNode",
+      "op": "/",
+      "left": {
+        "tipo": "NumberNode",
+        "value": 20,
+        "is_real": false
+      },
+      "right": {
+        "tipo": "NumberNode",
+        "value": 6,
+        "is_real": false
+      }
+    },
+    {
+      "tipo": "MemWriteNode",
       "name": "SOMA",
       "value": {
         "tipo": "NumberNode",
@@ -174,6 +224,10 @@
           }
         }
       ]
+    },
+    {
+      "tipo": "ResNode",
+      "n": 1
     },
     {
       "tipo": "MemReadNode",
@@ -268,7 +322,11 @@
     },
     {
       "tipo": "MemReadNode",
-      "name": "X"
+      "name": "MEURES"
+    },
+    {
+      "tipo": "ResNode",
+      "n": 1
     }
   ]
 }

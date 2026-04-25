@@ -21,6 +21,7 @@ class AssemblyGenerator:
         self.const_pool: dict[str, float] = {}   # label → valor double
         self.historico_resultados: list[str] = []  # para RES (labels dos slots)
         self.res_count: int = 0                  # contador de slots de resultado
+        self._rastrear_historico: bool = True    # False dentro de IF/WHILE bodies
 
     def novo_label(self, prefixo: str = "L") -> str:
         """Gera um label único."""
@@ -88,7 +89,8 @@ class AssemblyGenerator:
         """Salva o resultado do statement atual em um slot de memória (res_N)."""
         self.res_count += 1
         label = f"res_{self.res_count}"
-        self.historico_resultados.append(label)
+        if self._rastrear_historico:
+            self.historico_resultados.append(label)
         self.emit(f"    LDR R0, ={label}")
         self.emit(f"    VSTR.F64 {dreg}, [R0]    @ salvar resultado #{self.res_count}")
 
@@ -281,18 +283,24 @@ class AssemblyGenerator:
         self.emit(f"    @ IF")
         self._gerar_condicao(node.condition, label_else)
 
-        # Bloco then
+        # Bloco then — resultados internos não entram no histórico de CMD_RES
         self.emit(f"    @ [then]")
+        old_rastrear = self._rastrear_historico
+        self._rastrear_historico = False
         for stmt in node.then_block:
             self._gerar_stmt(stmt)
+        self._rastrear_historico = old_rastrear
         self.emit(f"    B {label_fim}")
 
         # Bloco else (pode ser vazio)
         self.emit(f"{label_else}:")
         if node.else_block:
             self.emit(f"    @ [else]")
+            old_rastrear = self._rastrear_historico
+            self._rastrear_historico = False
             for stmt in node.else_block:
                 self._gerar_stmt(stmt)
+            self._rastrear_historico = old_rastrear
 
         self.emit(f"{label_fim}:")
 
@@ -305,10 +313,18 @@ class AssemblyGenerator:
         self.emit(f"{label_inicio}:")
         self._gerar_condicao(node.condition, label_fim)
 
-        # Corpo do loop
+        # Corpo do loop — resultados internos não entram no histórico individualmente
         self.emit(f"    @ [body]")
+        old_rastrear = self._rastrear_historico
+        self._rastrear_historico = False
+        res_antes = self.res_count
         for stmt in node.body:
             self._gerar_stmt(stmt)
+        self._rastrear_historico = old_rastrear
+
+        if self.res_count > res_antes:
+            self.historico_resultados.append(f"res_{self.res_count}")
+
         self.emit(f"    B {label_inicio}")
         self.emit(f"{label_fim}:")
 

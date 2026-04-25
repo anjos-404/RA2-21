@@ -1,18 +1,28 @@
-# lexer/token.py — INTERFACE ACORDADA ENTRE TODOS
-# Define TokenType (enum) e Token (dataclass) usados em todo o compilador.
+# lexer/token.py — Definições de Token para gramática LL(1) pura.
+# Tipos de token usados por todo o compilador.
 
 from dataclasses import dataclass
 from enum import Enum, auto
 
 
 class TokenType(Enum):
-    # Literais
+    # ----- Literais -----
     INTEGER     = auto()   # ex: 42
     REAL        = auto()   # ex: 3.14
-    # Memórias e keywords
     MEM_NAME    = auto()   # ex: X, CONTADOR (letras maiúsculas)
-    RES         = auto()   # keyword RES
-    # Operadores aritméticos
+
+    # ----- Marcadores desambiguadores -----
+    EXPR        = auto()   # marca expressão aritmética: (EXPR a b op)
+    CMD_RES     = auto()   # marca comando RES:          (CMD_RES N)
+    CMD_LOAD    = auto()   # marca leitura de memória:   (CMD_LOAD X)
+    CMD_STORE   = auto()   # marca escrita em memória:   (CMD_STORE V X)
+
+    # ----- Estruturas de controle -----
+    IF          = auto()   # (IF cond block)
+    IFELSE      = auto()   # (IFELSE cond then else)
+    WHILE       = auto()   # (WHILE cond block)
+
+    # ----- Operadores aritméticos -----
     PLUS        = auto()   # +
     MINUS       = auto()   # -
     MUL         = auto()   # *
@@ -20,31 +30,32 @@ class TokenType(Enum):
     DIV_INT     = auto()   # /
     MOD         = auto()   # %
     POW         = auto()   # ^
-    # Operadores relacionais (Parte 3)
+
+    # ----- Operadores relacionais -----
     GT          = auto()   # >
     LT          = auto()   # <
     GTE         = auto()   # >=
     LTE         = auto()   # <=
     EQ          = auto()   # ==
     NEQ         = auto()   # !=
-    # Estruturas de controle (Parte 3)
-    IF          = auto()   # IF
-    IFELSE      = auto()   # IFELSE
-    WHILE       = auto()   # WHILE
-    # Delimitadores
+
+    # ----- Delimitadores -----
     LPAREN      = auto()   # (
     RPAREN      = auto()   # )
     LBRACKET    = auto()   # [
     RBRACKET    = auto()   # ]
-    # Programa
-    START       = auto()   # START (dentro de parênteses)
-    END         = auto()   # END (dentro de parênteses)
-    # Especial
+
+    # ----- Marcadores de programa -----
+    START       = auto()   # keyword START (início de programa)
+    END         = auto()   # keyword END (fim de programa)
+
+    # ----- Especial -----
     EOF         = auto()
 
 
 @dataclass
 class Token:
+    """Token: unidade léxica produzida pelo analisador léxico."""
     type: TokenType
     value: str | int | float
     line: int

@@ -1,18 +1,18 @@
-# parser/ast_nodes.py — Parte 4
-# Definição dos nós da AST (Abstract Syntax Tree) do compilador RPN.
+# parser/ast_nodes.py — Nós da Árvore Sintática Abstrata (AST).
+# A AST é a representação semântica do programa, limpa da derivação gramatical.
 
 from dataclasses import dataclass, field
 from typing import Any
 
 
 class ASTNode:
-    """Classe base para todos os nós da AST."""
+    """Classe base de todos os nós da AST."""
     pass
 
 
 @dataclass
 class ProgramNode(ASTNode):
-    """Nó raiz do programa — contém lista de statements."""
+    """Raiz do programa — lista de statements."""
     statements: list[ASTNode]
 
 
@@ -26,29 +26,28 @@ class BinOpNode(ASTNode):
 
 @dataclass
 class NumberNode(ASTNode):
-    """Literal numérico (inteiro ou real)."""
+    """Literal numérico."""
     value: int | float
-    is_real: bool          # True = REAL (IEEE 754 double), False = INTEGER
+    is_real: bool          # True = REAL (IEEE 754), False = INTEGER
 
 
 @dataclass
 class MemReadNode(ASTNode):
-    """Leitura de memória: (MEM_NAME)."""
-    name: str              # nome da memória (ex: "X", "CONTADOR")
+    """Leitura de memória: (CMD_LOAD NOME)."""
+    name: str
 
 
 @dataclass
 class MemWriteNode(ASTNode):
-    """Escrita em memória: (V MEM_NAME)."""
+    """Escrita em memória: (CMD_STORE valor NOME)."""
     name: str
     value: ASTNode
 
 
 @dataclass
 class ResNode(ASTNode):
-    """Referência a resultado anterior: (N RES)."""
-    n: int                 # N linhas anteriores
-
+    """Comando RES: (CMD_RES N)."""
+    n: int
 
 
 @dataclass

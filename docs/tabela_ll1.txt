@@ -1,0 +1,58 @@
+Tabela LL(1):
+================================================================================
+
+[arith_op]
+  DIV_INT         →  arith_op → DIV_INT
+  DIV_REAL        →  arith_op → DIV_REAL
+  MINUS           →  arith_op → MINUS
+  MOD             →  arith_op → MOD
+  MUL             →  arith_op → MUL
+  PLUS            →  arith_op → PLUS
+  POW             →  arith_op → POW
+
+[block]
+  LBRACKET        →  block → LBRACKET stmts RBRACKET
+
+[condition]
+  LPAREN          →  condition → LPAREN operand operand relational_op RPAREN
+
+[operand]
+  INTEGER         →  operand → INTEGER
+  LPAREN          →  operand → LPAREN operand_paren_tail
+  MEM_NAME        →  operand → MEM_NAME
+  REAL            →  operand → REAL
+
+[operand_paren_tail]
+  CMD_LOAD        →  operand_paren_tail → CMD_LOAD MEM_NAME RPAREN
+  EXPR            →  operand_paren_tail → EXPR operand operand arith_op RPAREN
+
+[programa]
+  START           →  programa → START stmts END
+
+[relational_op]
+  EQ              →  relational_op → EQ
+  GT              →  relational_op → GT
+  GTE             →  relational_op → GTE
+  LT              →  relational_op → LT
+  LTE             →  relational_op → LTE
+  NEQ             →  relational_op → NEQ
+
+[statement]
+  LPAREN          →  statement → LPAREN stmt_tail
+
+[stmt_tail]
+  CMD_LOAD        →  stmt_tail → CMD_LOAD MEM_NAME RPAREN
+  CMD_RES         →  stmt_tail → CMD_RES INTEGER RPAREN
+  CMD_STORE       →  stmt_tail → CMD_STORE operand MEM_NAME RPAREN
+  EXPR            →  stmt_tail → EXPR operand operand arith_op RPAREN
+  IF              →  stmt_tail → IF condition block RPAREN
+  IFELSE          →  stmt_tail → IFELSE condition block block RPAREN
+  WHILE           →  stmt_tail → WHILE condition block RPAREN
+
+[stmts]
+  END             →  stmts → ε
+  LPAREN          →  stmts → statement stmts
+  RBRACKET        →  stmts → ε
+
+================================================================================
+Total de entradas: 33

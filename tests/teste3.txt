@@ -1,14 +1,23 @@
-(START)
-((3 2 +) (4 5 *) +)
-((7 3 %) (2 4 *) |)
-(((2 3 +) (4 5 *) -) 2 ^)
-(0 SOMA)
-(1 N)
-((N) 5 <= [((SOMA) (N) + SOMA) ((N) 1 + N)] WHILE)
-(SOMA)
-((SOMA) 10 > [(1 OK)] [(0 OK)] IFELSE)
-(OK)
-(100 X)
-((X) 50 >= [((X) 2 * X)] IF)
-(X)
-(END)
+START
+
+(EXPR (EXPR 3 2 +) (EXPR 4 5 *) +)
+(EXPR (EXPR 7 3 %) (EXPR 2 4 *) |)
+(EXPR (EXPR (EXPR 2 3 +) (EXPR 4 5 *) -) 2 ^)
+
+(CMD_STORE (EXPR (EXPR 3 2 +) (EXPR 4 5 *) -) MEURES)
+
+(EXPR 20 6 /)
+(CMD_STORE 0 SOMA)
+(CMD_STORE 1 N)
+(WHILE (N 5 <=) [(CMD_STORE (EXPR SOMA N +) SOMA) (CMD_STORE (EXPR N 1 +) N)])
+(CMD_RES 1)
+(CMD_LOAD SOMA)
+(IFELSE (SOMA 10 >) [(CMD_STORE 1 OK)] [(CMD_STORE 0 OK)])
+(CMD_LOAD OK)
+(CMD_STORE 100 X)
+(IF (X 50 >=) [(CMD_STORE (EXPR X 2 *) X)])
+
+(CMD_LOAD MEURES)
+(CMD_RES 1)
+
+END

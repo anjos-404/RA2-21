@@ -1,1 +1,0 @@
-# Módulo parser — Parser LL(1) e AST Nodes

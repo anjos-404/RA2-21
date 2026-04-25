@@ -1,145 +1,180 @@
-# codegen/ast_builder.py — Parte 4
-# Transformação da árvore de derivação (DerivacaoNode) em AST compacta.
+# codegen/ast_builder.py — Transformação da árvore de derivação em AST.
+#
+# A árvore de derivação (DerivacaoNode) segue EXATAMENTE a estrutura das
+# produções da gramática. 
+# # marcadores (EXPR, CMD_*, IF, etc.) e nós intermediários.
 
-from parser.ast_nodes import *
+from parser.ast_nodes import (
+    ASTNode, ProgramNode, BinOpNode, NumberNode,
+    MemReadNode, MemWriteNode, ResNode,
+    ConditionNode, IfNode, WhileNode, BlockNode
+)
 from parser.parser import DerivacaoNode
 
 
+SIMBOLOS_SINTATICOS = {
+    "LPAREN", "RPAREN", "LBRACKET", "RBRACKET",
+    "START", "END",
+    "EXPR", "CMD_RES", "CMD_LOAD", "CMD_STORE",
+    "IF", "IFELSE", "WHILE",
+    "EOF",
+}
+
+
 class ASTBuilder:
-    """
-    Transforma a DerivacaoNode (parse tree) em AST compacta.
-    Percorre a árvore de derivação recursivamente, coletando apenas os nós semânticos.
-    """
+    """Percorre a árvore de derivação e constrói a AST."""
 
     def build(self, derivacao: DerivacaoNode) -> ProgramNode:
-        return self._build_programa(derivacao)
-
-    def _build_programa(self, node: DerivacaoNode) -> ProgramNode:
-        # node.simbolo == "programa"
-        # filhos: LPAREN START RPAREN stmts LPAREN END RPAREN
-        stmts_node = self._find_child(node, "stmts")
+        # programa → START stmts END
+        stmts_node = self._filho(derivacao, "stmts")
         stmts = self._build_stmts(stmts_node)
         return ProgramNode(stmts)
 
     def _build_stmts(self, node: DerivacaoNode) -> list[ASTNode]:
-        if not node.filhos:
-            return []
-        resultado = []
-        for filho in node.filhos:
-            if filho.simbolo == "statement":
-                stmt = self._build_statement(filho)
-                if stmt is not None:
-                    resultado.append(stmt)
-            elif filho.simbolo == "stmts":
-                resultado.extend(self._build_stmts(filho))
+        """stmts → statement stmts | ε"""
+        resultado: list[ASTNode] = []
+        while node.filhos:
+            # Primeiro filho é statement (caso não-epsilon)
+            primeiro = node.filhos[0]
+            if primeiro.simbolo == "statement":
+                stmt = self._build_statement(primeiro)
+                resultado.append(stmt)
+                # Segundo filho é stmts (recursivo)
+                node = node.filhos[1]
+            else:
+                break
         return resultado
 
     def _build_statement(self, node: DerivacaoNode) -> ASTNode:
-        if not node.filhos:
-            return None
-        filho = node.filhos[0]
-        if filho.simbolo == "expression":
-            return self._build_expression(filho)
-        elif filho.simbolo == "special_cmd":
-            return self._build_special(filho)
-        elif filho.simbolo == "control_struct":
-            return self._build_control(filho)
-        raise ValueError(f"Statement desconhecido: {filho.simbolo}")
+        """statement → LPAREN stmt_tail"""
+        # filhos[0] = LPAREN (descartado)
+        # filhos[1] = stmt_tail
+        stmt_tail = node.filhos[1]
+        return self._build_stmt_tail(stmt_tail)
 
-    def _build_expression(self, node: DerivacaoNode) -> ASTNode:
-        # filhos: LPAREN operand operand arith_op [MEM_NAME] RPAREN
-        left = self._build_operand(node.filhos[1])
-        right = self._build_operand(node.filhos[2])
-        op = node.filhos[3].filhos[0].token.value  # arith_op → terminal
-        binop = BinOpNode(op=op, left=left, right=right)
+    def _build_stmt_tail(self, node: DerivacaoNode) -> ASTNode:
+        """
+        stmt_tail pode ser:
+          EXPR operand operand arith_op RPAREN
+          CMD_RES INTEGER RPAREN
+          CMD_LOAD MEM_NAME RPAREN
+          CMD_STORE operand MEM_NAME RPAREN
+          IF condition block RPAREN
+          IFELSE condition block block RPAREN
+          WHILE condition block RPAREN
+        """
+        primeiro = node.filhos[0].simbolo
 
-        # Verificar se há MEM_NAME (expressão + store)
-        mem_nodes = [f for f in node.filhos if f.simbolo == "MEM_NAME"]
-        if mem_nodes:
-            return MemWriteNode(name=mem_nodes[0].token.value, value=binop)
-        return binop
+        if primeiro == "EXPR":
+            # EXPR operand operand arith_op RPAREN
+            left  = self._build_operand(node.filhos[1])
+            right = self._build_operand(node.filhos[2])
+            op    = self._build_arith_op(node.filhos[3])
+            return BinOpNode(op=op, left=left, right=right)
+
+        elif primeiro == "CMD_RES":
+            # CMD_RES INTEGER RPAREN
+            n = int(node.filhos[1].token.value)
+            return ResNode(n=n)
+
+        elif primeiro == "CMD_LOAD":
+            # CMD_LOAD MEM_NAME RPAREN
+            nome = node.filhos[1].token.value
+            return MemReadNode(name=nome)
+
+        elif primeiro == "CMD_STORE":
+            # CMD_STORE operand MEM_NAME RPAREN
+            valor = self._build_operand(node.filhos[1])
+            nome  = node.filhos[2].token.value
+            return MemWriteNode(name=nome, value=valor)
+
+        elif primeiro == "IF":
+            # IF condition block RPAREN
+            cond  = self._build_condition(node.filhos[1])
+            then_ = self._build_block(node.filhos[2])
+            return IfNode(condition=cond, then_block=then_, else_block=[])
+
+        elif primeiro == "IFELSE":
+            # IFELSE condition block block RPAREN
+            cond  = self._build_condition(node.filhos[1])
+            then_ = self._build_block(node.filhos[2])
+            else_ = self._build_block(node.filhos[3])
+            return IfNode(condition=cond, then_block=then_, else_block=else_)
+
+        elif primeiro == "WHILE":
+            # WHILE condition block RPAREN
+            cond = self._build_condition(node.filhos[1])
+            body = self._build_block(node.filhos[2])
+            return WhileNode(condition=cond, body=body)
+
+        raise ValueError(f"stmt_tail desconhecido: começa com {primeiro}")
 
     def _build_operand(self, node: DerivacaoNode) -> ASTNode:
-        if not node.filhos:
-            raise ValueError("Operando sem filhos")
+        """
+        operand → INTEGER | REAL | MEM_NAME | LPAREN operand_paren_tail
+        """
         filho = node.filhos[0]
+
         if filho.simbolo == "INTEGER":
             return NumberNode(value=int(filho.token.value), is_real=False)
-        elif filho.simbolo == "REAL":
+        if filho.simbolo == "REAL":
             return NumberNode(value=float(filho.token.value), is_real=True)
-        elif filho.simbolo == "MEM_NAME":
+        if filho.simbolo == "MEM_NAME":
             return MemReadNode(name=filho.token.value)
-        elif filho.simbolo == "expression":
-            return self._build_expression(filho)
-        elif filho.simbolo == "special_cmd":
-            # (MEM_NAME) usado como operand — leitura de memória
-            return self._build_special(filho)
-        raise ValueError(f"Operando desconhecido: {filho.simbolo}")
+        if filho.simbolo == "LPAREN":
+            # operand → LPAREN operand_paren_tail
+            paren_tail = node.filhos[1]
+            return self._build_operand_paren_tail(paren_tail)
 
-    def _build_special(self, node: DerivacaoNode) -> ASTNode:
-        # Distinguir pelos filhos:
-        # (N RES)   → filhos: LPAREN INTEGER RES RPAREN
-        # (V MEM)   → filhos: LPAREN operand MEM_NAME RPAREN
-        # (MEM)     → filhos: LPAREN MEM_NAME RPAREN
+        raise ValueError(f"operand desconhecido: {filho.simbolo}")
 
-        # Filtrar filhos significativos (sem LPAREN/RPAREN)
-        filhos_sig = [f for f in node.filhos if f.simbolo not in ("LPAREN", "RPAREN")]
+    def _build_operand_paren_tail(self, node: DerivacaoNode) -> ASTNode:
+        """
+        operand_paren_tail → EXPR operand operand arith_op RPAREN
+                           | CMD_LOAD MEM_NAME RPAREN
+        """
+        primeiro = node.filhos[0].simbolo
 
-        if len(filhos_sig) == 1 and filhos_sig[0].simbolo == "MEM_NAME":
-            # Leitura de memória: (MEM)
-            return MemReadNode(name=filhos_sig[0].token.value)
+        if primeiro == "EXPR":
+            left  = self._build_operand(node.filhos[1])
+            right = self._build_operand(node.filhos[2])
+            op    = self._build_arith_op(node.filhos[3])
+            return BinOpNode(op=op, left=left, right=right)
 
-        if len(filhos_sig) == 2:
-            if filhos_sig[1].simbolo == "RES":
-                # (N RES)
-                n = int(filhos_sig[0].token.value)
-                return ResNode(n=n)
-            elif filhos_sig[1].simbolo == "MEM_NAME":
-                # (V MEM) — escrita
-                name = filhos_sig[1].token.value
-                
-                value = self._build_operand(filhos_sig[0])
-                return MemWriteNode(name=name, value=value)
+        if primeiro == "CMD_LOAD":
+            nome = node.filhos[1].token.value
+            return MemReadNode(name=nome)
 
-        raise ValueError(f"Comando especial inválido com {len(filhos_sig)} filhos significativos")
+        raise ValueError(f"operand_paren_tail desconhecido: {primeiro}")
 
-    def _build_control(self, node: DerivacaoNode) -> ASTNode:
-        filho = node.filhos[0]
-        if filho.simbolo == "if_stmt":
-            return self._build_if(filho)
-        elif filho.simbolo == "while_stmt":
-            return self._build_while(filho)
-        raise ValueError(f"Controle desconhecido: {filho.simbolo}")
+    def _build_arith_op(self, node: DerivacaoNode) -> str:
+        """arith_op → PLUS | MINUS | MUL | DIV_REAL | DIV_INT | MOD | POW"""
+        return node.filhos[0].token.value
 
-    def _build_if(self, node: DerivacaoNode) -> IfNode:
-        cond = self._build_condition(self._find_child(node, "condition"))
-        blocks = [f for f in node.filhos if f.simbolo == "block"]
-        then_b = self._build_block(blocks[0])
-        else_b = self._build_block(blocks[1]) if len(blocks) > 1 else []
-        return IfNode(condition=cond, then_block=then_b, else_block=else_b)
-
-    def _build_while(self, node: DerivacaoNode) -> WhileNode:
-        cond = self._build_condition(self._find_child(node, "condition"))
-        body = self._build_block(self._find_child(node, "block"))
-        return WhileNode(condition=cond, body=body)
+    def _build_relational_op(self, node: DerivacaoNode) -> str:
+        """relational_op → GT | LT | GTE | LTE | EQ | NEQ"""
+        return node.filhos[0].token.value
 
     def _build_condition(self, node: DerivacaoNode) -> ConditionNode:
-        # filhos: operand operand relational_op (sem LPAREN/RPAREN)
-        left = self._build_operand(node.filhos[0])
-        right = self._build_operand(node.filhos[1])
-        op = node.filhos[2].filhos[0].token.value
+        """condition → LPAREN operand operand relational_op RPAREN"""
+        # filhos: [LPAREN, operand, operand, relational_op, RPAREN]
+        left  = self._build_operand(node.filhos[1])
+        right = self._build_operand(node.filhos[2])
+        op    = self._build_relational_op(node.filhos[3])
         return ConditionNode(op=op, left=left, right=right)
 
     def _build_block(self, node: DerivacaoNode) -> list[ASTNode]:
-        # block: LBRACKET stmts RBRACKET
-        stmts_node = self._find_child(node, "stmts")
+        """block → LBRACKET stmts RBRACKET"""
+        stmts_node = self._filho(node, "stmts")
         return self._build_stmts(stmts_node)
 
-    def _find_child(self, node: DerivacaoNode, simbolo: str) -> DerivacaoNode:
+    def _filho(self, node: DerivacaoNode, simbolo: str) -> DerivacaoNode:
         for f in node.filhos:
             if f.simbolo == simbolo:
                 return f
-        raise ValueError(f"Filho '{simbolo}' não encontrado em '{node.simbolo}'")
+        raise ValueError(
+            f"filho '{simbolo}' não encontrado em '{node.simbolo}'"
+        )
 
 
 def gerarArvore(derivacao: DerivacaoNode) -> ProgramNode:
@@ -148,45 +183,45 @@ def gerarArvore(derivacao: DerivacaoNode) -> ProgramNode:
 
 
 def imprimir_ast(node: ASTNode, nivel: int = 0):
-    """Imprime a AST de forma hierárquica no terminal."""
-    indent = "  " * nivel
+    """Imprime a AST hierarquicamente no terminal."""
+    ind = "  " * nivel
     if isinstance(node, ProgramNode):
-        print(f"{indent}Program")
+        print(f"{ind}Program")
         for s in node.statements:
             imprimir_ast(s, nivel + 1)
     elif isinstance(node, BinOpNode):
-        print(f"{indent}BinOp '{node.op}'")
+        print(f"{ind}BinOp '{node.op}'")
         imprimir_ast(node.left, nivel + 1)
         imprimir_ast(node.right, nivel + 1)
     elif isinstance(node, NumberNode):
         tipo = "REAL" if node.is_real else "INT"
-        print(f"{indent}Num({tipo}: {node.value})")
+        print(f"{ind}Num({tipo}: {node.value})")
     elif isinstance(node, MemReadNode):
-        print(f"{indent}MemRead({node.name})")
+        print(f"{ind}MemRead({node.name})")
     elif isinstance(node, MemWriteNode):
-        print(f"{indent}MemWrite({node.name})")
+        print(f"{ind}MemWrite({node.name})")
         imprimir_ast(node.value, nivel + 1)
     elif isinstance(node, ResNode):
-        print(f"{indent}Res(n={node.n})")
+        print(f"{ind}Res(n={node.n})")
     elif isinstance(node, ConditionNode):
-        print(f"{indent}Cond '{node.op}'")
+        print(f"{ind}Cond '{node.op}'")
         imprimir_ast(node.left, nivel + 1)
         imprimir_ast(node.right, nivel + 1)
     elif isinstance(node, IfNode):
-        print(f"{indent}If")
-        print(f"{indent}  [cond]")
+        print(f"{ind}If")
+        print(f"{ind}  [cond]")
         imprimir_ast(node.condition, nivel + 2)
-        print(f"{indent}  [then]")
+        print(f"{ind}  [then]")
         for s in node.then_block:
             imprimir_ast(s, nivel + 2)
         if node.else_block:
-            print(f"{indent}  [else]")
+            print(f"{ind}  [else]")
             for s in node.else_block:
                 imprimir_ast(s, nivel + 2)
     elif isinstance(node, WhileNode):
-        print(f"{indent}While")
-        print(f"{indent}  [cond]")
+        print(f"{ind}While")
+        print(f"{ind}  [cond]")
         imprimir_ast(node.condition, nivel + 2)
-        print(f"{indent}  [body]")
+        print(f"{ind}  [body]")
         for s in node.body:
             imprimir_ast(s, nivel + 2)
