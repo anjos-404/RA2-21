@@ -1,0 +1,57 @@
+{
+  "X": {
+    "nome": "X",
+    "tipo": "int",
+    "categoria": "variavel",
+    "escopo": "global",
+    "linha_definicao": 9,
+    "linhas_uso": [
+      11,
+      14,
+      15,
+      24,
+      25,
+      29
+    ]
+  },
+  "PI": {
+    "nome": "PI",
+    "tipo": "real",
+    "categoria": "variavel",
+    "escopo": "global",
+    "linha_definicao": 10,
+    "linhas_uso": [
+      16,
+      25
+    ]
+  },
+  "Y": {
+    "nome": "Y",
+    "tipo": "int",
+    "categoria": "variavel",
+    "escopo": "global",
+    "linha_definicao": 23,
+    "linhas_uso": [
+      24
+    ]
+  },
+  "POS": {
+    "nome": "POS",
+    "tipo": "int",
+    "categoria": "variavel",
+    "escopo": "global",
+    "linha_definicao": 29,
+    "linhas_uso": []
+  },
+  "I": {
+    "nome": "I",
+    "tipo": "int",
+    "categoria": "variavel",
+    "escopo": "global",
+    "linha_definicao": 30,
+    "linhas_uso": [
+      31,
+      32
+    ]
+  }
+}

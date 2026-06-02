@@ -1,0 +1,41 @@
+{
+  "K": {
+    "nome": "K",
+    "tipo": "int",
+    "categoria": "variavel",
+    "escopo": "global",
+    "linha_definicao": 29,
+    "linhas_uso": []
+  },
+  "SOMA": {
+    "nome": "SOMA",
+    "tipo": "int",
+    "categoria": "variavel",
+    "escopo": "global",
+    "linha_definicao": 33,
+    "linhas_uso": [
+      35,
+      36
+    ]
+  },
+  "N": {
+    "nome": "N",
+    "tipo": "int",
+    "categoria": "variavel",
+    "escopo": "global",
+    "linha_definicao": 34,
+    "linhas_uso": [
+      35
+    ]
+  },
+  "OK": {
+    "nome": "OK",
+    "tipo": "int",
+    "categoria": "variavel",
+    "escopo": "global",
+    "linha_definicao": 36,
+    "linhas_uso": [
+      37
+    ]
+  }
+}

@@ -1,23 +1,42 @@
+*{ ============================================================
+   teste3.txt — Programa com ERROS SEMANTICOS INTENCIONAIS
+   Estruturalmente valido (lexico/sintatico), mas contem 5 erros
+   semanticos. O Assembly NAO deve ser gerado para este arquivo.
+   Cada erro esta sinalizado com um comentario iniciado por ERRO.
+   ============================================================ }*
 START
 
-(EXPR (EXPR 3 2 +) (EXPR 4 5 *) +)
-(EXPR (EXPR 7 3 %) (EXPR 2 4 *) |)
-(EXPR (EXPR (EXPR 2 3 +) (EXPR 4 5 *) -) 2 ^)
+*{ ERRO 1: uso de variavel antes da definicao }*
+(CMD_LOAD CONTADOR)
 
-(CMD_STORE (EXPR (EXPR 3 2 +) (EXPR 4 5 *) -) MEURES)
-
+*{ Operadores aritmeticos validos (todos) }*
+(EXPR 8 3 +)
+(EXPR 9 4 -)
+(EXPR 6 7 *)
+(EXPR 10.0 4.0 |)
 (EXPR 20 6 /)
+(EXPR 17 5 %)
+(EXPR 2 6 ^)
+(EXPR (EXPR 3 2 +) (EXPR 4 5 *) +)   *{ aninhamento valido }*
+
+*{ ERRO 2: divisao inteira com operando real }*
+(EXPR 7.5 2 /)
+
+*{ ERRO 3: resto (modulo) com operando real }*
+(EXPR 9.0 2 %)
+
+*{ ERRO 4: redefinicao incompativel (int recebendo real) }*
+(CMD_STORE 5 K)
+(CMD_STORE 2.5 K)
+
+*{ Variaveis, decisao e repeticao validas }*
 (CMD_STORE 0 SOMA)
 (CMD_STORE 1 N)
 (WHILE (N 5 <=) [(CMD_STORE (EXPR SOMA N +) SOMA) (CMD_STORE (EXPR N 1 +) N)])
-(CMD_RES 1)
-(CMD_LOAD SOMA)
 (IFELSE (SOMA 10 >) [(CMD_STORE 1 OK)] [(CMD_STORE 0 OK)])
 (CMD_LOAD OK)
-(CMD_STORE 100 X)
-(IF (X 50 >=) [(CMD_STORE (EXPR X 2 *) X)])
 
-(CMD_LOAD MEURES)
-(CMD_RES 1)
+*{ ERRO 5: RES referencia resultado inexistente }*
+(CMD_RES 99)
 
 END

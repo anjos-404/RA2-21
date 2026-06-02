@@ -44,11 +44,22 @@ OPS_SIMPLES = {
 }
 
 
-def lerTokens(arquivo: str) -> list[Token]:
+def lerTokens(arquivo: str, incluir_comentarios: bool = False) -> list[Token]:
     """
-    Entrada: caminho do arquivo-fonte (.txt).
+    Entrada:
+        arquivo               — caminho do arquivo-fonte (.txt).
+        incluir_comentarios   — se True, emite tokens TokenType.COMMENT para os
+                                comentários; se False (padrão), eles são apenas
+                                reconhecidos e descartados, sem chegar ao parser.
     Saída: list[Token] pronto para ser consumido pelo parser.
-    Lança: LexicalError se encontrar token desconhecido.
+    Lança: LexicalError se encontrar token desconhecido ou comentário não fechado.
+
+    Comentários (Fase 3): a linguagem usa *{ para iniciar e }* para encerrar um
+    comentário. Comentários podem ocupar linhas inteiras, aparecer no fim de uma
+    linha de código ou entre expressões, e podem se estender por várias linhas.
+    O analisador léxico os reconhece como tokens de tipo "comentário" e os
+    descarta durante a geração do vetor de tokens, de modo que não interferem nas
+    análises sintática e semântica. (O comentário de linha '#' também é aceito.)
     """
     tokens: list[Token] = []
 
@@ -76,10 +87,40 @@ def lerTokens(arquivo: str) -> list[Token]:
             i += 1
             continue
 
+        # Comentário de bloco: *{ ... }* (pode ser multilinha)
+        # Precede o operador '*' (MUL): '*{' é sempre início de comentário.
+        if c == "*" and i + 1 < n and conteudo[i + 1] == "{":
+            linha_inicio = linha
+            i += 2
+            inicio_txt = i
+            fechado = False
+            while i < n:
+                if conteudo[i] == "}" and i + 1 < n and conteudo[i + 1] == "*":
+                    fechado = True
+                    break
+                if conteudo[i] == "\n":
+                    linha += 1
+                i += 1
+            if not fechado:
+                raise LexicalError(
+                    "Comentário não terminado (esperado '}*')",
+                    line=linha_inicio,
+                )
+            if incluir_comentarios:
+                texto = conteudo[inicio_txt:i]
+                tokens.append(Token(TokenType.COMMENT, texto, linha_inicio))
+            i += 2  # consome o '}*'
+            continue
+
         # Comentário: # até fim da linha
         if c == "#":
+            inicio_txt = i + 1
             while i < n and conteudo[i] != "\n":
                 i += 1
+            if incluir_comentarios:
+                tokens.append(
+                    Token(TokenType.COMMENT, conteudo[inicio_txt:i], linha)
+                )
             continue
 
         # Operadores duplos (>=, <=, ==, !=)

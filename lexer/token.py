@@ -49,6 +49,9 @@ class TokenType(Enum):
     START       = auto()   # keyword START (início de programa)
     END         = auto()   # keyword END (fim de programa)
 
+    # ----- Comentário -----
+    COMMENT     = auto()   # *{ ... }* — reconhecido e descartado (Fase 3)
+
     # ----- Especial -----
     EOF         = auto()
 

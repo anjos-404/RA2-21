@@ -63,49 +63,53 @@ class ASTBuilder:
           IFELSE condition block block RPAREN
           WHILE condition block RPAREN
         """
-        primeiro = node.filhos[0].simbolo
+        marcador = node.filhos[0]
+        primeiro = marcador.simbolo
+        linha = marcador.token.line if marcador.token else 0
 
         if primeiro == "EXPR":
             # EXPR operand operand arith_op RPAREN
             left  = self._build_operand(node.filhos[1])
             right = self._build_operand(node.filhos[2])
             op    = self._build_arith_op(node.filhos[3])
-            return BinOpNode(op=op, left=left, right=right)
+            return BinOpNode(op=op, left=left, right=right, linha=linha)
 
         elif primeiro == "CMD_RES":
             # CMD_RES INTEGER RPAREN
             n = int(node.filhos[1].token.value)
-            return ResNode(n=n)
+            return ResNode(n=n, linha=linha)
 
         elif primeiro == "CMD_LOAD":
             # CMD_LOAD MEM_NAME RPAREN
             nome = node.filhos[1].token.value
-            return MemReadNode(name=nome)
+            return MemReadNode(name=nome, linha=linha)
 
         elif primeiro == "CMD_STORE":
             # CMD_STORE operand MEM_NAME RPAREN
             valor = self._build_operand(node.filhos[1])
             nome  = node.filhos[2].token.value
-            return MemWriteNode(name=nome, value=valor)
+            return MemWriteNode(name=nome, value=valor, linha=linha)
 
         elif primeiro == "IF":
             # IF condition block RPAREN
             cond  = self._build_condition(node.filhos[1])
             then_ = self._build_block(node.filhos[2])
-            return IfNode(condition=cond, then_block=then_, else_block=[])
+            return IfNode(condition=cond, then_block=then_, else_block=[],
+                          linha=linha)
 
         elif primeiro == "IFELSE":
             # IFELSE condition block block RPAREN
             cond  = self._build_condition(node.filhos[1])
             then_ = self._build_block(node.filhos[2])
             else_ = self._build_block(node.filhos[3])
-            return IfNode(condition=cond, then_block=then_, else_block=else_)
+            return IfNode(condition=cond, then_block=then_, else_block=else_,
+                          linha=linha)
 
         elif primeiro == "WHILE":
             # WHILE condition block RPAREN
             cond = self._build_condition(node.filhos[1])
             body = self._build_block(node.filhos[2])
-            return WhileNode(condition=cond, body=body)
+            return WhileNode(condition=cond, body=body, linha=linha)
 
         raise ValueError(f"stmt_tail desconhecido: começa com {primeiro}")
 
@@ -116,11 +120,13 @@ class ASTBuilder:
         filho = node.filhos[0]
 
         if filho.simbolo == "INTEGER":
-            return NumberNode(value=int(filho.token.value), is_real=False)
+            return NumberNode(value=int(filho.token.value), is_real=False,
+                              linha=filho.token.line)
         if filho.simbolo == "REAL":
-            return NumberNode(value=float(filho.token.value), is_real=True)
+            return NumberNode(value=float(filho.token.value), is_real=True,
+                              linha=filho.token.line)
         if filho.simbolo == "MEM_NAME":
-            return MemReadNode(name=filho.token.value)
+            return MemReadNode(name=filho.token.value, linha=filho.token.line)
         if filho.simbolo == "LPAREN":
             # operand → LPAREN operand_paren_tail
             paren_tail = node.filhos[1]
@@ -133,17 +139,19 @@ class ASTBuilder:
         operand_paren_tail → EXPR operand operand arith_op RPAREN
                            | CMD_LOAD MEM_NAME RPAREN
         """
-        primeiro = node.filhos[0].simbolo
+        marcador = node.filhos[0]
+        primeiro = marcador.simbolo
+        linha = marcador.token.line if marcador.token else 0
 
         if primeiro == "EXPR":
             left  = self._build_operand(node.filhos[1])
             right = self._build_operand(node.filhos[2])
             op    = self._build_arith_op(node.filhos[3])
-            return BinOpNode(op=op, left=left, right=right)
+            return BinOpNode(op=op, left=left, right=right, linha=linha)
 
         if primeiro == "CMD_LOAD":
             nome = node.filhos[1].token.value
-            return MemReadNode(name=nome)
+            return MemReadNode(name=nome, linha=linha)
 
         raise ValueError(f"operand_paren_tail desconhecido: {primeiro}")
 
@@ -158,10 +166,12 @@ class ASTBuilder:
     def _build_condition(self, node: DerivacaoNode) -> ConditionNode:
         """condition → LPAREN operand operand relational_op RPAREN"""
         # filhos: [LPAREN, operand, operand, relational_op, RPAREN]
+        lparen = node.filhos[0]
+        linha = lparen.token.line if lparen.token else 0
         left  = self._build_operand(node.filhos[1])
         right = self._build_operand(node.filhos[2])
         op    = self._build_relational_op(node.filhos[3])
-        return ConditionNode(op=op, left=left, right=right)
+        return ConditionNode(op=op, left=left, right=right, linha=linha)
 
     def _build_block(self, node: DerivacaoNode) -> list[ASTNode]:
         """block → LBRACKET stmts RBRACKET"""

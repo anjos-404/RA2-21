@@ -174,11 +174,35 @@ class TestRecuperacao:
         assert erros == []
 
     def test_parsear_com_recuperacao_invalida(self, gramatica):
+        # Modo pânico: registra o erro, sincroniza e devolve a árvore
+        # parcial (não None) em vez de abortar no primeiro erro.
         r, erros = parsear_com_recuperacao(
             lerTokens_from_string("START\n(3 4 +)\nEND\n"), gramatica
         )
-        assert r is None
+        assert r is not None
         assert len(erros) == 1
+
+    def test_parsear_com_recuperacao_multiplos_erros(self, gramatica):
+        # Dois statements inválidos: a sincronização deve permitir
+        # detectar AMBOS os erros em uma única passada.
+        r, erros = parsear_com_recuperacao(
+            lerTokens_from_string("START\n(3 4 +)\n(9 9 *)\nEND\n"), gramatica
+        )
+        assert r is not None
+        assert len(erros) == 2
+
+    def test_parsear_com_recuperacao_continua_apos_erro(self, gramatica):
+        # Após um statement inválido, um statement VÁLIDO seguinte deve
+        # ser analisado normalmente (a análise prossegue, não para).
+        r, erros = parsear_com_recuperacao(
+            lerTokens_from_string("START\n(3 4 +)\n(EXPR 1 2 +)\nEND\n"),
+            gramatica,
+        )
+        assert r is not None
+        assert len(erros) == 1
+        # o statement válido foi incorporado à árvore parcial
+        stmts = r.filhos[1]
+        assert len(stmts.filhos) == 1
 
 
 def lerTokens_from_string(s: str):

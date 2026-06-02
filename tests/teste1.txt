@@ -1,20 +1,36 @@
-
+*{ ============================================================
+   teste1.txt — Programa SEMANTICAMENTE VALIDO
+   Cobre: todos os operadores aritmeticos, os comandos especiais
+   (CMD_STORE, CMD_LOAD, CMD_RES), decisao, repeticao, expressoes
+   aninhadas, comentarios e os tipos int/real/bool.
+   ============================================================ }*
 START
 
-(EXPR 10 5 +)
-(EXPR 20 8 -)
-(EXPR 6 7 *)
-(EXPR 20 4 /)
-(EXPR 17 5 %)
-(EXPR 7.5 2.5 |)
-(EXPR 2 5 ^)
-(CMD_RES 1)
-(CMD_STORE 100 VALOR)
-(CMD_LOAD VALOR)
-(IF (VALOR 50 >) [(CMD_STORE 1 FLAG)])
+*{ --- Operadores aritmeticos (todos) --- }*
+(EXPR 10 5 +)            *{ soma .......... int }*
+(EXPR 20 8 -)            *{ subtracao ..... int }*
+(EXPR 6 7 *)             *{ multiplicacao . int }*
+(EXPR 7.5 2.5 |)         *{ divisao real .. real }*
+(EXPR 20 4 /)            *{ divisao inteira int }*
+(EXPR 17 5 %)            *{ resto ......... int }*
+(EXPR 2 5 ^)             *{ potenciacao ... int }*
+
+*{ --- Comandos especiais e literais (int e real) --- }*
+(CMD_STORE 100 VALOR)    *{ define VALOR : int }*
+(CMD_STORE 3.14 PI)      *{ define PI : real }*
+(EXPR PI 2.0 *)          *{ real * real -> real }*
+(EXPR VALOR PI +)        *{ int + real -> real (alargamento) }*
+(CMD_LOAD VALOR)         *{ usa VALOR (definida acima) }*
+(CMD_RES 1)              *{ resultado da expressao 1 statement antes }*
+
+*{ --- Expressoes aninhadas de complexidade crescente --- }*
+(EXPR (EXPR 3 2 +) (EXPR 4 5 *) +)
+(EXPR (EXPR (EXPR 2 3 +) 4 *) 2 ^)
+
+*{ --- Decisao (bool na condicao) e repeticao --- }*
+(IFELSE (VALOR 50 >) [(CMD_STORE 1 FLAG)] [(CMD_STORE 0 FLAG)])
 (CMD_STORE 0 CONT)
 (WHILE (CONT 3 <) [(CMD_STORE (EXPR CONT 1 +) CONT)])
 (CMD_LOAD CONT)
-(CMD_LOAD VALOR)
 
 END

@@ -1,0 +1,551 @@
+{
+  "no": "Programa",
+  "categoria": "programa",
+  "statements": [
+    {
+      "no": "MemRead",
+      "categoria": "leitura_memoria",
+      "tipo": null,
+      "linha": 10,
+      "nome": "CONTADOR",
+      "simbolo": null
+    },
+    {
+      "no": "BinOp",
+      "categoria": "expressao_aritmetica",
+      "tipo": "int",
+      "linha": 13,
+      "op": "+",
+      "esquerda": {
+        "no": "Number",
+        "categoria": "literal_inteiro",
+        "tipo": "int",
+        "linha": 13,
+        "valor": 8,
+        "is_real": false
+      },
+      "direita": {
+        "no": "Number",
+        "categoria": "literal_inteiro",
+        "tipo": "int",
+        "linha": 13,
+        "valor": 3,
+        "is_real": false
+      }
+    },
+    {
+      "no": "BinOp",
+      "categoria": "expressao_aritmetica",
+      "tipo": "int",
+      "linha": 14,
+      "op": "-",
+      "esquerda": {
+        "no": "Number",
+        "categoria": "literal_inteiro",
+        "tipo": "int",
+        "linha": 14,
+        "valor": 9,
+        "is_real": false
+      },
+      "direita": {
+        "no": "Number",
+        "categoria": "literal_inteiro",
+        "tipo": "int",
+        "linha": 14,
+        "valor": 4,
+        "is_real": false
+      }
+    },
+    {
+      "no": "BinOp",
+      "categoria": "expressao_aritmetica",
+      "tipo": "int",
+      "linha": 15,
+      "op": "*",
+      "esquerda": {
+        "no": "Number",
+        "categoria": "literal_inteiro",
+        "tipo": "int",
+        "linha": 15,
+        "valor": 6,
+        "is_real": false
+      },
+      "direita": {
+        "no": "Number",
+        "categoria": "literal_inteiro",
+        "tipo": "int",
+        "linha": 15,
+        "valor": 7,
+        "is_real": false
+      }
+    },
+    {
+      "no": "BinOp",
+      "categoria": "expressao_aritmetica",
+      "tipo": "real",
+      "linha": 16,
+      "op": "|",
+      "esquerda": {
+        "no": "Number",
+        "categoria": "literal_real",
+        "tipo": "real",
+        "linha": 16,
+        "valor": 10.0,
+        "is_real": true
+      },
+      "direita": {
+        "no": "Number",
+        "categoria": "literal_real",
+        "tipo": "real",
+        "linha": 16,
+        "valor": 4.0,
+        "is_real": true
+      }
+    },
+    {
+      "no": "BinOp",
+      "categoria": "expressao_aritmetica",
+      "tipo": "int",
+      "linha": 17,
+      "op": "/",
+      "esquerda": {
+        "no": "Number",
+        "categoria": "literal_inteiro",
+        "tipo": "int",
+        "linha": 17,
+        "valor": 20,
+        "is_real": false
+      },
+      "direita": {
+        "no": "Number",
+        "categoria": "literal_inteiro",
+        "tipo": "int",
+        "linha": 17,
+        "valor": 6,
+        "is_real": false
+      }
+    },
+    {
+      "no": "BinOp",
+      "categoria": "expressao_aritmetica",
+      "tipo": "int",
+      "linha": 18,
+      "op": "%",
+      "esquerda": {
+        "no": "Number",
+        "categoria": "literal_inteiro",
+        "tipo": "int",
+        "linha": 18,
+        "valor": 17,
+        "is_real": false
+      },
+      "direita": {
+        "no": "Number",
+        "categoria": "literal_inteiro",
+        "tipo": "int",
+        "linha": 18,
+        "valor": 5,
+        "is_real": false
+      }
+    },
+    {
+      "no": "BinOp",
+      "categoria": "expressao_aritmetica",
+      "tipo": "int",
+      "linha": 19,
+      "op": "^",
+      "esquerda": {
+        "no": "Number",
+        "categoria": "literal_inteiro",
+        "tipo": "int",
+        "linha": 19,
+        "valor": 2,
+        "is_real": false
+      },
+      "direita": {
+        "no": "Number",
+        "categoria": "literal_inteiro",
+        "tipo": "int",
+        "linha": 19,
+        "valor": 6,
+        "is_real": false
+      }
+    },
+    {
+      "no": "BinOp",
+      "categoria": "expressao_aritmetica",
+      "tipo": "int",
+      "linha": 20,
+      "op": "+",
+      "esquerda": {
+        "no": "BinOp",
+        "categoria": "expressao_aritmetica",
+        "tipo": "int",
+        "linha": 20,
+        "op": "+",
+        "esquerda": {
+          "no": "Number",
+          "categoria": "literal_inteiro",
+          "tipo": "int",
+          "linha": 20,
+          "valor": 3,
+          "is_real": false
+        },
+        "direita": {
+          "no": "Number",
+          "categoria": "literal_inteiro",
+          "tipo": "int",
+          "linha": 20,
+          "valor": 2,
+          "is_real": false
+        }
+      },
+      "direita": {
+        "no": "BinOp",
+        "categoria": "expressao_aritmetica",
+        "tipo": "int",
+        "linha": 20,
+        "op": "*",
+        "esquerda": {
+          "no": "Number",
+          "categoria": "literal_inteiro",
+          "tipo": "int",
+          "linha": 20,
+          "valor": 4,
+          "is_real": false
+        },
+        "direita": {
+          "no": "Number",
+          "categoria": "literal_inteiro",
+          "tipo": "int",
+          "linha": 20,
+          "valor": 5,
+          "is_real": false
+        }
+      }
+    },
+    {
+      "no": "BinOp",
+      "categoria": "expressao_aritmetica",
+      "tipo": "int",
+      "linha": 23,
+      "op": "/",
+      "esquerda": {
+        "no": "Number",
+        "categoria": "literal_real",
+        "tipo": "real",
+        "linha": 23,
+        "valor": 7.5,
+        "is_real": true
+      },
+      "direita": {
+        "no": "Number",
+        "categoria": "literal_inteiro",
+        "tipo": "int",
+        "linha": 23,
+        "valor": 2,
+        "is_real": false
+      }
+    },
+    {
+      "no": "BinOp",
+      "categoria": "expressao_aritmetica",
+      "tipo": "int",
+      "linha": 26,
+      "op": "%",
+      "esquerda": {
+        "no": "Number",
+        "categoria": "literal_real",
+        "tipo": "real",
+        "linha": 26,
+        "valor": 9.0,
+        "is_real": true
+      },
+      "direita": {
+        "no": "Number",
+        "categoria": "literal_inteiro",
+        "tipo": "int",
+        "linha": 26,
+        "valor": 2,
+        "is_real": false
+      }
+    },
+    {
+      "no": "MemWrite",
+      "categoria": "atribuicao_memoria",
+      "tipo": "int",
+      "linha": 29,
+      "nome": "K",
+      "simbolo": {
+        "tipo": "int",
+        "linha_definicao": 29
+      },
+      "valor": {
+        "no": "Number",
+        "categoria": "literal_inteiro",
+        "tipo": "int",
+        "linha": 29,
+        "valor": 5,
+        "is_real": false
+      }
+    },
+    {
+      "no": "MemWrite",
+      "categoria": "atribuicao_memoria",
+      "tipo": "real",
+      "linha": 30,
+      "nome": "K",
+      "simbolo": {
+        "tipo": "int",
+        "linha_definicao": 29
+      },
+      "valor": {
+        "no": "Number",
+        "categoria": "literal_real",
+        "tipo": "real",
+        "linha": 30,
+        "valor": 2.5,
+        "is_real": true
+      }
+    },
+    {
+      "no": "MemWrite",
+      "categoria": "atribuicao_memoria",
+      "tipo": "int",
+      "linha": 33,
+      "nome": "SOMA",
+      "simbolo": {
+        "tipo": "int",
+        "linha_definicao": 33
+      },
+      "valor": {
+        "no": "Number",
+        "categoria": "literal_inteiro",
+        "tipo": "int",
+        "linha": 33,
+        "valor": 0,
+        "is_real": false
+      }
+    },
+    {
+      "no": "MemWrite",
+      "categoria": "atribuicao_memoria",
+      "tipo": "int",
+      "linha": 34,
+      "nome": "N",
+      "simbolo": {
+        "tipo": "int",
+        "linha_definicao": 34
+      },
+      "valor": {
+        "no": "Number",
+        "categoria": "literal_inteiro",
+        "tipo": "int",
+        "linha": 34,
+        "valor": 1,
+        "is_real": false
+      }
+    },
+    {
+      "no": "While",
+      "categoria": "repeticao",
+      "linha": 35,
+      "condicao": {
+        "no": "Condition",
+        "categoria": "condicao_relacional",
+        "tipo": "bool",
+        "linha": 35,
+        "op": "<=",
+        "esquerda": {
+          "no": "MemRead",
+          "categoria": "leitura_memoria",
+          "tipo": "int",
+          "linha": 35,
+          "nome": "N",
+          "simbolo": {
+            "tipo": "int",
+            "linha_definicao": 34
+          }
+        },
+        "direita": {
+          "no": "Number",
+          "categoria": "literal_inteiro",
+          "tipo": "int",
+          "linha": 35,
+          "valor": 5,
+          "is_real": false
+        }
+      },
+      "corpo": [
+        {
+          "no": "MemWrite",
+          "categoria": "atribuicao_memoria",
+          "tipo": "int",
+          "linha": 35,
+          "nome": "SOMA",
+          "simbolo": {
+            "tipo": "int",
+            "linha_definicao": 33
+          },
+          "valor": {
+            "no": "BinOp",
+            "categoria": "expressao_aritmetica",
+            "tipo": "int",
+            "linha": 35,
+            "op": "+",
+            "esquerda": {
+              "no": "MemRead",
+              "categoria": "leitura_memoria",
+              "tipo": "int",
+              "linha": 35,
+              "nome": "SOMA",
+              "simbolo": {
+                "tipo": "int",
+                "linha_definicao": 33
+              }
+            },
+            "direita": {
+              "no": "MemRead",
+              "categoria": "leitura_memoria",
+              "tipo": "int",
+              "linha": 35,
+              "nome": "N",
+              "simbolo": {
+                "tipo": "int",
+                "linha_definicao": 34
+              }
+            }
+          }
+        },
+        {
+          "no": "MemWrite",
+          "categoria": "atribuicao_memoria",
+          "tipo": "int",
+          "linha": 35,
+          "nome": "N",
+          "simbolo": {
+            "tipo": "int",
+            "linha_definicao": 34
+          },
+          "valor": {
+            "no": "BinOp",
+            "categoria": "expressao_aritmetica",
+            "tipo": "int",
+            "linha": 35,
+            "op": "+",
+            "esquerda": {
+              "no": "MemRead",
+              "categoria": "leitura_memoria",
+              "tipo": "int",
+              "linha": 35,
+              "nome": "N",
+              "simbolo": {
+                "tipo": "int",
+                "linha_definicao": 34
+              }
+            },
+            "direita": {
+              "no": "Number",
+              "categoria": "literal_inteiro",
+              "tipo": "int",
+              "linha": 35,
+              "valor": 1,
+              "is_real": false
+            }
+          }
+        }
+      ]
+    },
+    {
+      "no": "If",
+      "categoria": "decisao_composta",
+      "linha": 36,
+      "condicao": {
+        "no": "Condition",
+        "categoria": "condicao_relacional",
+        "tipo": "bool",
+        "linha": 36,
+        "op": ">",
+        "esquerda": {
+          "no": "MemRead",
+          "categoria": "leitura_memoria",
+          "tipo": "int",
+          "linha": 36,
+          "nome": "SOMA",
+          "simbolo": {
+            "tipo": "int",
+            "linha_definicao": 33
+          }
+        },
+        "direita": {
+          "no": "Number",
+          "categoria": "literal_inteiro",
+          "tipo": "int",
+          "linha": 36,
+          "valor": 10,
+          "is_real": false
+        }
+      },
+      "then": [
+        {
+          "no": "MemWrite",
+          "categoria": "atribuicao_memoria",
+          "tipo": "int",
+          "linha": 36,
+          "nome": "OK",
+          "simbolo": {
+            "tipo": "int",
+            "linha_definicao": 36
+          },
+          "valor": {
+            "no": "Number",
+            "categoria": "literal_inteiro",
+            "tipo": "int",
+            "linha": 36,
+            "valor": 1,
+            "is_real": false
+          }
+        }
+      ],
+      "else": [
+        {
+          "no": "MemWrite",
+          "categoria": "atribuicao_memoria",
+          "tipo": "int",
+          "linha": 36,
+          "nome": "OK",
+          "simbolo": {
+            "tipo": "int",
+            "linha_definicao": 36
+          },
+          "valor": {
+            "no": "Number",
+            "categoria": "literal_inteiro",
+            "tipo": "int",
+            "linha": 36,
+            "valor": 0,
+            "is_real": false
+          }
+        }
+      ]
+    },
+    {
+      "no": "MemRead",
+      "categoria": "leitura_memoria",
+      "tipo": "int",
+      "linha": 37,
+      "nome": "OK",
+      "simbolo": {
+        "tipo": "int",
+        "linha_definicao": 36
+      }
+    },
+    {
+      "no": "Res",
+      "categoria": "resultado_anterior",
+      "tipo": "real",
+      "linha": 40,
+      "n": 99
+    }
+  ]
+}

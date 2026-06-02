@@ -145,16 +145,34 @@ POW_FIM_6:
     VLDR.F64 D0, [R0]    @ ler memoria X
     LDR R0, =mem_Y
     VLDR.F64 D1, [R0]    @ ler memoria Y
-    VADD.F64 D2, D0, D1  @ soma IEEE 754
-    LDR R0, =res_12
-    VSTR.F64 D2, [R0]    @ salvar resultado #12
-
-    @ --- Statement ---
+    VADD.F64 D0, D0, D1  @ soma IEEE 754
+    VPUSH {D0}              @ salvar operando esquerdo
     LDR R0, =mem_X
     VLDR.F64 D0, [R0]    @ ler memoria X
     LDR R0, =mem_Y
     VLDR.F64 D1, [R0]    @ ler memoria Y
-    VSUB.F64 D2, D0, D1  @ subtracao IEEE 754
+    VSUB.F64 D1, D0, D1  @ subtracao IEEE 754
+    VPOP {D0}               @ restaurar operando esquerdo
+    VMUL.F64 D2, D0, D1  @ multiplicacao IEEE 754
+    LDR R0, =res_12
+    VSTR.F64 D2, [R0]    @ salvar resultado #12
+
+    @ --- Statement ---
+    LDR R0, =mem_PI
+    VLDR.F64 D0, [R0]    @ ler memoria PI
+    LDR R0, =const_7
+    VLDR.F64 D1, [R0]    @ carregar 1.0 (double)
+    VADD.F64 D0, D0, D1  @ soma IEEE 754
+    VPUSH {D0}              @ salvar operando esquerdo
+    LDR R0, =mem_X
+    VLDR.F64 D0, [R0]    @ ler memoria X
+    MOV R0, #2
+    VMOV S2, R0               @ int para VFP (via S2)
+    VCVT.F64.S32 D1, S2   @ converter int32 para F64
+    VMUL.F64 D1, D0, D1  @ multiplicacao IEEE 754
+    VPOP {D0}               @ restaurar operando esquerdo
+    @ Divisao real IEEE 754
+    VDIV.F64 D2, D0, D1  @ divisao real
     LDR R0, =res_13
     VSTR.F64 D2, [R0]    @ salvar resultado #13
 

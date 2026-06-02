@@ -245,6 +245,105 @@ class RecursiveDescentParser:
         raiz.filhos = [lbracket, stmts, rbracket]
         return raiz
 
+    # ------------------------------------------------------------------
+    # Recuperação de erros (modo pânico com sincronização)
+    # ------------------------------------------------------------------
+    #
+    # Conjunto de sincronização para statements:
+    #   - LPAREN em nível 0  -> início do próximo statement
+    #   - END                -> fim do programa
+    #   - EOF                -> fim da entrada
+    #
+    # Ao encontrar um erro sintático dentro de um statement, o parser
+    # registra a mensagem (com linha e tipo) e descarta tokens até um
+    # desses pontos seguros, controlando a profundidade de parênteses e
+    # colchetes para não sincronizar dentro de um construto aninhado.
+    # Assim a análise PROSSEGUE após o erro e todos os erros sintáticos
+    # são reportados em uma única passada, em vez de abortar no primeiro.
+
+    def parse_com_recuperacao(self) -> tuple[DerivacaoNode | None, list[str]]:
+        erros: list[str] = []
+        raiz = DerivacaoNode("programa")
+
+        # START — registra, mas não aborta, se ausente.
+        if self.current_token().type.name == "START":
+            raiz.filhos.append(self.match("START"))
+        else:
+            tok = self.current_token()
+            erros.append(str(RPNSyntaxError(
+                f"esperado START, encontrado {tok.type.name} ('{tok.value}')",
+                line=tok.line)))
+
+        stmts = DerivacaoNode("stmts")
+        raiz.filhos.append(stmts)
+
+        # Laço de statements com recuperação em modo pânico.
+        while True:
+            tok = self.current_token()
+            name = tok.type.name
+            if name in ("END", "EOF"):
+                break
+            if name == "LPAREN":
+                marca = self.pos
+                try:
+                    stmts.filhos.append(self.parse_statement())
+                except RPNSyntaxError as e:
+                    erros.append(str(e))
+                    self._sincronizar(marca)
+            else:
+                # Token solto, fora de qualquer statement.
+                erros.append(str(RPNSyntaxError(
+                    f"token inesperado {name} ('{tok.value}') "
+                    f"fora de um statement",
+                    line=tok.line)))
+                self._sincronizar(self.pos)
+
+        # END — registra, mas não aborta, se ausente.
+        if self.current_token().type.name == "END":
+            raiz.filhos.append(self.match("END"))
+        else:
+            tok = self.current_token()
+            erros.append(str(RPNSyntaxError(
+                f"esperado END, encontrado {tok.type.name} ('{tok.value}')",
+                line=tok.line)))
+
+        # Com erros, retorna a árvore PARCIAL (não None) para permitir
+        # inspeção; sem erros, retorna a derivação completa e válida.
+        return raiz, erros
+
+    def _sincronizar(self, marca: int):
+        """Modo pânico: descarta tokens até o próximo ponto de sincronização.
+
+        Garante progresso (consome ao menos um token se a posição não
+        avançou desde o início do statement) para nunca entrar em laço
+        infinito, e controla a profundidade de ()/[] para parar no início
+        do próximo statement, no fechamento do construto quebrado, no END
+        ou no EOF.
+        """
+        if self.pos == marca:
+            self.advance()
+
+        depth = 0
+        while True:
+            name = self.current_token().type.name
+            if name == "EOF":
+                return
+            if name in ("LPAREN", "LBRACKET"):
+                if depth == 0 and name == "LPAREN":
+                    return  # início do próximo statement
+                depth += 1
+                self.advance()
+            elif name in ("RPAREN", "RBRACKET"):
+                if depth == 0:
+                    self.advance()  # fecha o construto quebrado; retoma após ele
+                    return
+                depth -= 1
+                self.advance()
+            elif name == "END" and depth == 0:
+                return
+            else:
+                self.advance()
+
 
 def parsear(tokens: list[Token], gramatica: Gramatica) -> DerivacaoNode:
     """
@@ -267,10 +366,17 @@ def parsear(tokens: list[Token], gramatica: Gramatica) -> DerivacaoNode:
 def parsear_com_recuperacao(
     tokens: list[Token], gramatica: Gramatica
 ) -> tuple[DerivacaoNode | None, list[str]]:
-    """Versão que captura o primeiro erro e retorna lista de mensagens."""
-    erros = []
-    try:
-        return parsear(tokens, gramatica), erros
-    except RPNSyntaxError as e:
-        erros.append(str(e))
-        return None, erros
+    """Análise sintática com recuperação de erros em modo pânico.
+
+    Diferente de parsear(), NÃO aborta no primeiro erro: registra cada
+    erro sintático (com linha e tipo), sincroniza no início do próximo
+    statement e continua, de modo a reportar TODOS os erros encontrados
+    em uma única passada.
+
+    Saída:
+        (raiz, erros) — a árvore de derivação (parcial, se houve erros)
+        e a lista de mensagens de erro. Sem erros, `erros` é vazia e a
+        árvore é a derivação completa.
+    """
+    parser = RecursiveDescentParser(tokens, gramatica)
+    return parser.parse_com_recuperacao()

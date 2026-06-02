@@ -1,332 +1,495 @@
 {
-  "tipo": "ProgramNode",
+  "tipo_no": "ProgramNode",
   "statements": [
     {
-      "tipo": "BinOpNode",
+      "tipo_no": "MemReadNode",
+      "name": "CONTADOR",
+      "linha": 10,
+      "tipo": null,
+      "categoria": "leitura_memoria"
+    },
+    {
+      "tipo_no": "BinOpNode",
       "op": "+",
       "left": {
-        "tipo": "BinOpNode",
-        "op": "+",
-        "left": {
-          "tipo": "NumberNode",
-          "value": 3,
-          "is_real": false
-        },
-        "right": {
-          "tipo": "NumberNode",
-          "value": 2,
-          "is_real": false
-        }
+        "tipo_no": "NumberNode",
+        "value": 8,
+        "is_real": false,
+        "linha": 13,
+        "tipo": "int",
+        "categoria": "literal_inteiro"
       },
       "right": {
-        "tipo": "BinOpNode",
-        "op": "*",
-        "left": {
-          "tipo": "NumberNode",
-          "value": 4,
-          "is_real": false
-        },
-        "right": {
-          "tipo": "NumberNode",
-          "value": 5,
-          "is_real": false
-        }
-      }
+        "tipo_no": "NumberNode",
+        "value": 3,
+        "is_real": false,
+        "linha": 13,
+        "tipo": "int",
+        "categoria": "literal_inteiro"
+      },
+      "linha": 13,
+      "tipo": "int",
+      "categoria": "expressao_aritmetica"
     },
     {
-      "tipo": "BinOpNode",
+      "tipo_no": "BinOpNode",
+      "op": "-",
+      "left": {
+        "tipo_no": "NumberNode",
+        "value": 9,
+        "is_real": false,
+        "linha": 14,
+        "tipo": "int",
+        "categoria": "literal_inteiro"
+      },
+      "right": {
+        "tipo_no": "NumberNode",
+        "value": 4,
+        "is_real": false,
+        "linha": 14,
+        "tipo": "int",
+        "categoria": "literal_inteiro"
+      },
+      "linha": 14,
+      "tipo": "int",
+      "categoria": "expressao_aritmetica"
+    },
+    {
+      "tipo_no": "BinOpNode",
+      "op": "*",
+      "left": {
+        "tipo_no": "NumberNode",
+        "value": 6,
+        "is_real": false,
+        "linha": 15,
+        "tipo": "int",
+        "categoria": "literal_inteiro"
+      },
+      "right": {
+        "tipo_no": "NumberNode",
+        "value": 7,
+        "is_real": false,
+        "linha": 15,
+        "tipo": "int",
+        "categoria": "literal_inteiro"
+      },
+      "linha": 15,
+      "tipo": "int",
+      "categoria": "expressao_aritmetica"
+    },
+    {
+      "tipo_no": "BinOpNode",
       "op": "|",
       "left": {
-        "tipo": "BinOpNode",
-        "op": "%",
-        "left": {
-          "tipo": "NumberNode",
-          "value": 7,
-          "is_real": false
-        },
-        "right": {
-          "tipo": "NumberNode",
-          "value": 3,
-          "is_real": false
-        }
+        "tipo_no": "NumberNode",
+        "value": 10.0,
+        "is_real": true,
+        "linha": 16,
+        "tipo": "real",
+        "categoria": "literal_real"
       },
       "right": {
-        "tipo": "BinOpNode",
-        "op": "*",
-        "left": {
-          "tipo": "NumberNode",
-          "value": 2,
-          "is_real": false
-        },
-        "right": {
-          "tipo": "NumberNode",
-          "value": 4,
-          "is_real": false
-        }
-      }
-    },
-    {
-      "tipo": "BinOpNode",
-      "op": "^",
-      "left": {
-        "tipo": "BinOpNode",
-        "op": "-",
-        "left": {
-          "tipo": "BinOpNode",
-          "op": "+",
-          "left": {
-            "tipo": "NumberNode",
-            "value": 2,
-            "is_real": false
-          },
-          "right": {
-            "tipo": "NumberNode",
-            "value": 3,
-            "is_real": false
-          }
-        },
-        "right": {
-          "tipo": "BinOpNode",
-          "op": "*",
-          "left": {
-            "tipo": "NumberNode",
-            "value": 4,
-            "is_real": false
-          },
-          "right": {
-            "tipo": "NumberNode",
-            "value": 5,
-            "is_real": false
-          }
-        }
+        "tipo_no": "NumberNode",
+        "value": 4.0,
+        "is_real": true,
+        "linha": 16,
+        "tipo": "real",
+        "categoria": "literal_real"
       },
-      "right": {
-        "tipo": "NumberNode",
-        "value": 2,
-        "is_real": false
-      }
+      "linha": 16,
+      "tipo": "real",
+      "categoria": "expressao_aritmetica"
     },
     {
-      "tipo": "MemWriteNode",
-      "name": "MEURES",
-      "value": {
-        "tipo": "BinOpNode",
-        "op": "-",
-        "left": {
-          "tipo": "BinOpNode",
-          "op": "+",
-          "left": {
-            "tipo": "NumberNode",
-            "value": 3,
-            "is_real": false
-          },
-          "right": {
-            "tipo": "NumberNode",
-            "value": 2,
-            "is_real": false
-          }
-        },
-        "right": {
-          "tipo": "BinOpNode",
-          "op": "*",
-          "left": {
-            "tipo": "NumberNode",
-            "value": 4,
-            "is_real": false
-          },
-          "right": {
-            "tipo": "NumberNode",
-            "value": 5,
-            "is_real": false
-          }
-        }
-      }
-    },
-    {
-      "tipo": "BinOpNode",
+      "tipo_no": "BinOpNode",
       "op": "/",
       "left": {
-        "tipo": "NumberNode",
+        "tipo_no": "NumberNode",
         "value": 20,
-        "is_real": false
+        "is_real": false,
+        "linha": 17,
+        "tipo": "int",
+        "categoria": "literal_inteiro"
       },
       "right": {
-        "tipo": "NumberNode",
+        "tipo_no": "NumberNode",
         "value": 6,
-        "is_real": false
-      }
+        "is_real": false,
+        "linha": 17,
+        "tipo": "int",
+        "categoria": "literal_inteiro"
+      },
+      "linha": 17,
+      "tipo": "int",
+      "categoria": "expressao_aritmetica"
     },
     {
-      "tipo": "MemWriteNode",
-      "name": "SOMA",
-      "value": {
-        "tipo": "NumberNode",
-        "value": 0,
-        "is_real": false
-      }
+      "tipo_no": "BinOpNode",
+      "op": "%",
+      "left": {
+        "tipo_no": "NumberNode",
+        "value": 17,
+        "is_real": false,
+        "linha": 18,
+        "tipo": "int",
+        "categoria": "literal_inteiro"
+      },
+      "right": {
+        "tipo_no": "NumberNode",
+        "value": 5,
+        "is_real": false,
+        "linha": 18,
+        "tipo": "int",
+        "categoria": "literal_inteiro"
+      },
+      "linha": 18,
+      "tipo": "int",
+      "categoria": "expressao_aritmetica"
     },
     {
-      "tipo": "MemWriteNode",
-      "name": "N",
-      "value": {
-        "tipo": "NumberNode",
-        "value": 1,
-        "is_real": false
-      }
+      "tipo_no": "BinOpNode",
+      "op": "^",
+      "left": {
+        "tipo_no": "NumberNode",
+        "value": 2,
+        "is_real": false,
+        "linha": 19,
+        "tipo": "int",
+        "categoria": "literal_inteiro"
+      },
+      "right": {
+        "tipo_no": "NumberNode",
+        "value": 6,
+        "is_real": false,
+        "linha": 19,
+        "tipo": "int",
+        "categoria": "literal_inteiro"
+      },
+      "linha": 19,
+      "tipo": "int",
+      "categoria": "expressao_aritmetica"
     },
     {
-      "tipo": "WhileNode",
-      "condition": {
-        "tipo": "ConditionNode",
-        "op": "<=",
+      "tipo_no": "BinOpNode",
+      "op": "+",
+      "left": {
+        "tipo_no": "BinOpNode",
+        "op": "+",
         "left": {
-          "tipo": "MemReadNode",
-          "name": "N"
+          "tipo_no": "NumberNode",
+          "value": 3,
+          "is_real": false,
+          "linha": 20,
+          "tipo": "int",
+          "categoria": "literal_inteiro"
         },
         "right": {
-          "tipo": "NumberNode",
+          "tipo_no": "NumberNode",
+          "value": 2,
+          "is_real": false,
+          "linha": 20,
+          "tipo": "int",
+          "categoria": "literal_inteiro"
+        },
+        "linha": 20,
+        "tipo": "int",
+        "categoria": "expressao_aritmetica"
+      },
+      "right": {
+        "tipo_no": "BinOpNode",
+        "op": "*",
+        "left": {
+          "tipo_no": "NumberNode",
+          "value": 4,
+          "is_real": false,
+          "linha": 20,
+          "tipo": "int",
+          "categoria": "literal_inteiro"
+        },
+        "right": {
+          "tipo_no": "NumberNode",
           "value": 5,
-          "is_real": false
-        }
+          "is_real": false,
+          "linha": 20,
+          "tipo": "int",
+          "categoria": "literal_inteiro"
+        },
+        "linha": 20,
+        "tipo": "int",
+        "categoria": "expressao_aritmetica"
+      },
+      "linha": 20,
+      "tipo": "int",
+      "categoria": "expressao_aritmetica"
+    },
+    {
+      "tipo_no": "BinOpNode",
+      "op": "/",
+      "left": {
+        "tipo_no": "NumberNode",
+        "value": 7.5,
+        "is_real": true,
+        "linha": 23,
+        "tipo": "real",
+        "categoria": "literal_real"
+      },
+      "right": {
+        "tipo_no": "NumberNode",
+        "value": 2,
+        "is_real": false,
+        "linha": 23,
+        "tipo": "int",
+        "categoria": "literal_inteiro"
+      },
+      "linha": 23,
+      "tipo": "int",
+      "categoria": "expressao_aritmetica"
+    },
+    {
+      "tipo_no": "BinOpNode",
+      "op": "%",
+      "left": {
+        "tipo_no": "NumberNode",
+        "value": 9.0,
+        "is_real": true,
+        "linha": 26,
+        "tipo": "real",
+        "categoria": "literal_real"
+      },
+      "right": {
+        "tipo_no": "NumberNode",
+        "value": 2,
+        "is_real": false,
+        "linha": 26,
+        "tipo": "int",
+        "categoria": "literal_inteiro"
+      },
+      "linha": 26,
+      "tipo": "int",
+      "categoria": "expressao_aritmetica"
+    },
+    {
+      "tipo_no": "MemWriteNode",
+      "name": "K",
+      "value": {
+        "tipo_no": "NumberNode",
+        "value": 5,
+        "is_real": false,
+        "linha": 29,
+        "tipo": "int",
+        "categoria": "literal_inteiro"
+      },
+      "linha": 29,
+      "tipo": "int",
+      "categoria": "atribuicao_memoria"
+    },
+    {
+      "tipo_no": "MemWriteNode",
+      "name": "K",
+      "value": {
+        "tipo_no": "NumberNode",
+        "value": 2.5,
+        "is_real": true,
+        "linha": 30,
+        "tipo": "real",
+        "categoria": "literal_real"
+      },
+      "linha": 30,
+      "tipo": "real",
+      "categoria": "atribuicao_memoria"
+    },
+    {
+      "tipo_no": "MemWriteNode",
+      "name": "SOMA",
+      "value": {
+        "tipo_no": "NumberNode",
+        "value": 0,
+        "is_real": false,
+        "linha": 33,
+        "tipo": "int",
+        "categoria": "literal_inteiro"
+      },
+      "linha": 33,
+      "tipo": "int",
+      "categoria": "atribuicao_memoria"
+    },
+    {
+      "tipo_no": "MemWriteNode",
+      "name": "N",
+      "value": {
+        "tipo_no": "NumberNode",
+        "value": 1,
+        "is_real": false,
+        "linha": 34,
+        "tipo": "int",
+        "categoria": "literal_inteiro"
+      },
+      "linha": 34,
+      "tipo": "int",
+      "categoria": "atribuicao_memoria"
+    },
+    {
+      "tipo_no": "WhileNode",
+      "condition": {
+        "tipo_no": "ConditionNode",
+        "op": "<=",
+        "left": {
+          "tipo_no": "MemReadNode",
+          "name": "N",
+          "linha": 35,
+          "tipo": "int",
+          "categoria": "leitura_memoria"
+        },
+        "right": {
+          "tipo_no": "NumberNode",
+          "value": 5,
+          "is_real": false,
+          "linha": 35,
+          "tipo": "int",
+          "categoria": "literal_inteiro"
+        },
+        "linha": 35,
+        "tipo": "bool",
+        "categoria": "condicao_relacional"
       },
       "body": [
         {
-          "tipo": "MemWriteNode",
+          "tipo_no": "MemWriteNode",
           "name": "SOMA",
           "value": {
-            "tipo": "BinOpNode",
+            "tipo_no": "BinOpNode",
             "op": "+",
             "left": {
-              "tipo": "MemReadNode",
-              "name": "SOMA"
+              "tipo_no": "MemReadNode",
+              "name": "SOMA",
+              "linha": 35,
+              "tipo": "int",
+              "categoria": "leitura_memoria"
             },
             "right": {
-              "tipo": "MemReadNode",
-              "name": "N"
-            }
-          }
+              "tipo_no": "MemReadNode",
+              "name": "N",
+              "linha": 35,
+              "tipo": "int",
+              "categoria": "leitura_memoria"
+            },
+            "linha": 35,
+            "tipo": "int",
+            "categoria": "expressao_aritmetica"
+          },
+          "linha": 35,
+          "tipo": "int",
+          "categoria": "atribuicao_memoria"
         },
         {
-          "tipo": "MemWriteNode",
+          "tipo_no": "MemWriteNode",
           "name": "N",
           "value": {
-            "tipo": "BinOpNode",
+            "tipo_no": "BinOpNode",
             "op": "+",
             "left": {
-              "tipo": "MemReadNode",
-              "name": "N"
+              "tipo_no": "MemReadNode",
+              "name": "N",
+              "linha": 35,
+              "tipo": "int",
+              "categoria": "leitura_memoria"
             },
             "right": {
-              "tipo": "NumberNode",
+              "tipo_no": "NumberNode",
               "value": 1,
-              "is_real": false
-            }
-          }
+              "is_real": false,
+              "linha": 35,
+              "tipo": "int",
+              "categoria": "literal_inteiro"
+            },
+            "linha": 35,
+            "tipo": "int",
+            "categoria": "expressao_aritmetica"
+          },
+          "linha": 35,
+          "tipo": "int",
+          "categoria": "atribuicao_memoria"
         }
-      ]
+      ],
+      "linha": 35,
+      "categoria": "repeticao"
     },
     {
-      "tipo": "ResNode",
-      "n": 1
-    },
-    {
-      "tipo": "MemReadNode",
-      "name": "SOMA"
-    },
-    {
-      "tipo": "IfNode",
+      "tipo_no": "IfNode",
       "condition": {
-        "tipo": "ConditionNode",
+        "tipo_no": "ConditionNode",
         "op": ">",
         "left": {
-          "tipo": "MemReadNode",
-          "name": "SOMA"
+          "tipo_no": "MemReadNode",
+          "name": "SOMA",
+          "linha": 36,
+          "tipo": "int",
+          "categoria": "leitura_memoria"
         },
         "right": {
-          "tipo": "NumberNode",
+          "tipo_no": "NumberNode",
           "value": 10,
-          "is_real": false
-        }
+          "is_real": false,
+          "linha": 36,
+          "tipo": "int",
+          "categoria": "literal_inteiro"
+        },
+        "linha": 36,
+        "tipo": "bool",
+        "categoria": "condicao_relacional"
       },
       "then_block": [
         {
-          "tipo": "MemWriteNode",
+          "tipo_no": "MemWriteNode",
           "name": "OK",
           "value": {
-            "tipo": "NumberNode",
+            "tipo_no": "NumberNode",
             "value": 1,
-            "is_real": false
-          }
+            "is_real": false,
+            "linha": 36,
+            "tipo": "int",
+            "categoria": "literal_inteiro"
+          },
+          "linha": 36,
+          "tipo": "int",
+          "categoria": "atribuicao_memoria"
         }
       ],
       "else_block": [
         {
-          "tipo": "MemWriteNode",
+          "tipo_no": "MemWriteNode",
           "name": "OK",
           "value": {
-            "tipo": "NumberNode",
+            "tipo_no": "NumberNode",
             "value": 0,
-            "is_real": false
-          }
-        }
-      ]
-    },
-    {
-      "tipo": "MemReadNode",
-      "name": "OK"
-    },
-    {
-      "tipo": "MemWriteNode",
-      "name": "X",
-      "value": {
-        "tipo": "NumberNode",
-        "value": 100,
-        "is_real": false
-      }
-    },
-    {
-      "tipo": "IfNode",
-      "condition": {
-        "tipo": "ConditionNode",
-        "op": ">=",
-        "left": {
-          "tipo": "MemReadNode",
-          "name": "X"
-        },
-        "right": {
-          "tipo": "NumberNode",
-          "value": 50,
-          "is_real": false
-        }
-      },
-      "then_block": [
-        {
-          "tipo": "MemWriteNode",
-          "name": "X",
-          "value": {
-            "tipo": "BinOpNode",
-            "op": "*",
-            "left": {
-              "tipo": "MemReadNode",
-              "name": "X"
-            },
-            "right": {
-              "tipo": "NumberNode",
-              "value": 2,
-              "is_real": false
-            }
-          }
+            "is_real": false,
+            "linha": 36,
+            "tipo": "int",
+            "categoria": "literal_inteiro"
+          },
+          "linha": 36,
+          "tipo": "int",
+          "categoria": "atribuicao_memoria"
         }
       ],
-      "else_block": []
+      "linha": 36,
+      "categoria": "decisao_composta"
     },
     {
-      "tipo": "MemReadNode",
-      "name": "MEURES"
+      "tipo_no": "MemReadNode",
+      "name": "OK",
+      "linha": 37,
+      "tipo": "int",
+      "categoria": "leitura_memoria"
     },
     {
-      "tipo": "ResNode",
-      "n": 1
+      "tipo_no": "ResNode",
+      "n": 99,
+      "linha": 40,
+      "tipo": "real",
+      "categoria": "resultado_anterior"
     }
-  ]
+  ],
+  "linha": 0,
+  "categoria": "programa"
 }
